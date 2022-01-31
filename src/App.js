@@ -42,11 +42,32 @@ function App() {
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
-    for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
-      for (const [size_name, size_value] of Object.entries(SIZES)) {
-        const response = await axios.get(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`, { responseType: 'blob' });
-        await zipWriter.add(`${size_name}/${emo_name}.png`, new zip.BlobReader(response.data));
+    let promises = []; // whee
+
+    try {
+      for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
+        for (const [size_name, size_value] of Object.entries(SIZES)) {
+          if (promises.length) {
+            break;
+          }
+          let p = new Promise(async () => {
+            const response = await axios.get(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`, { responseType: 'blob' });
+
+            console.log(`${size_name}/${emo_name}.png`);
+            await zipWriter.add(`${size_name}/${emo_name}.png`, new zip.BlobReader(response.data));
+          });
+          promises.push(p);
+        };
       }
+
+      console.log('before');
+
+      await Promise.all(promises); // never ends??!
+
+      console.log('after');
+
+    } catch (error) {
+      alert(error);
     }
 
     const dataURI = URL.createObjectURL(await zipWriter.close());
