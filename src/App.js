@@ -8,7 +8,11 @@ import {
   theme,
   Image,
   Button,
+  HStack,
+  Container,
   Progress,
+  Stack,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
@@ -32,6 +36,38 @@ const SIZES = {
   largest: 7,
   // there is no 8, weird isn't it
   cropped: 9,
+}
+
+function About() {
+
+  const background = useColorModeValue("white", "gray.700");
+
+  return (
+    <Container
+      background={background}
+      borderColor={"gray.400"}
+      borderWidth='1px'
+      maxW='sm'
+      fontSize="md"
+      borderRadius='lg'
+      p={2}
+      boxShadow="lg">
+      <Stack spacing={2}>
+        <Box>
+          Howdy folks! 👋
+        </Box>
+        <Box>
+          We don't mean to alarm you, but to be quite honest: we're not entirely sure if Neopets is going to last forever, and we love our pets dearly.
+        </Box>
+        <Box fontSize='sm'>
+          For this reason, you can simply start entering some pets' names in and we'll get their images all downloaded for you!
+        </Box>
+        <Box fontSize="xs">
+          All of the work is done in your browser, we do not harvest any pet names you may enter!
+        </Box>
+      </Stack>
+    </Container>
+  )
 }
 
 function App() {
@@ -105,11 +141,15 @@ function App() {
         <Grid minH="100vh" p={3}>
           <ColorModeSwitcher justifySelf="flex-end" />
           <VStack spacing={8}>
-            <Image
-              borderRadius='full'
-              boxSize='400px'
-              fallbackSrc='/alex.png'
-            />
+            <HStack>
+              <Image
+                borderRadius='full'
+                boxSize='350px'
+                src='/alex.png'
+                title='Eggy Weggs!'
+              />
+              <About />
+            </HStack>
             <Input
               value={petName}
               isInvalid={error && petName}
