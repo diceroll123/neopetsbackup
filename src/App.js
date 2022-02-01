@@ -13,6 +13,8 @@ import {
   Progress,
   Stack,
   useColorModeValue,
+  Divider,
+  SkeletonCircle,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
@@ -113,6 +115,7 @@ function App() {
   const getSci = async () => {
     setInProgress(true);
     try {
+      // TODO: use fetch for this request + remove axios dependency
       const response = await axios.head(`http://localhost:8080/http://pets.neopets.com/cpn/${petName}/1/1.png`);
       setError(false);
       setDone(true);
@@ -135,12 +138,14 @@ function App() {
     setDownloadedCount(0);
   };
 
+  const green = useColorModeValue('green.300', 'green.500');
+
   return (
     <ChakraProvider theme={theme}>
       <Box textAlign="center" fontSize="xl">
         <Grid minH="100vh" p={3}>
           <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8}>
+          <VStack spacing={8} divider={<Divider maxW='3xl' />}>
             <HStack>
               <Image
                 borderRadius='full'
@@ -150,22 +155,46 @@ function App() {
               />
               <About />
             </HStack>
-            <Input
-              value={petName}
-              isInvalid={error && petName}
-              onChange={handlePetNameChange}
-              placeholder="Enter a Neopet's name" />
-            <Button
-              disabled={error || !petName || done || inProgress}
-              onClick={getSci}>
-              Do the thing
-            </Button>
-            <Progress
-              hasStripe
-              value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
-              size='md'
-              width={inProgress ? 'full' : null}
-            />
+            <HStack>
+              <Image
+                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+                title={petName}
+                fallback={
+                  <SkeletonCircle
+                    boxSize='70px'
+                  />
+                }
+                borderRadius='full'
+                boxSize='70px'
+              />
+              <Stack
+                as={Box}
+                minWidth={'xl'}
+                spacing={4}>
+                <HStack>
+                  <Input
+                    borderColor={green}
+                    value={petName}
+                    isInvalid={error && petName}
+                    onChange={handlePetNameChange}
+                    placeholder="Enter a Neopet's name" />
+                  <Button
+                    disabled={error || !petName || done || inProgress}
+                    onClick={getSci}
+                    bgColor={green}
+                  >
+                    Download
+                  </Button>
+                </HStack>
+                <Progress
+                  hasStripe
+                  isAnimated={true}
+                  value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
+                  size='md'
+                  width={inProgress ? 'full' : null}
+                />
+              </Stack>
+            </HStack>
           </VStack>
         </Grid>
       </Box>
