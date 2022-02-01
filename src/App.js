@@ -39,7 +39,7 @@ function App() {
   const [error, setError] = React.useState(false);
   const [done, setDone] = React.useState(false);
   const [inProgress, setInProgress] = React.useState(false);
-  const [downloaded, setDownloaded] = React.useState(0);
+  const [downloadedCount, setDownloadedCount] = React.useState(0);
 
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
@@ -52,7 +52,7 @@ function App() {
           let p = new Promise(async (resolve, reject) => {
             const response = await axios.get(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`, { responseType: 'blob' });
             await zipWriter.add(`${size_name}/${emo_name}.png`, new zip.BlobReader(response.data));
-            setDownloaded(previous => previous + 1);
+            setDownloadedCount(previous => previous + 1);
             resolve();
           });
           promises.push(p);
@@ -94,7 +94,7 @@ function App() {
     setDone(false);
     setInProgress(false);
     setError(false);
-    setDownloaded(0);
+    setDownloadedCount(0);
   };
 
   return (
@@ -120,7 +120,7 @@ function App() {
             </Button>
             <Progress 
               hasStripe 
-              value={100 * (downloaded/40)}
+              value={100 * (downloadedCount/40)}
               size='md'
               width={inProgress ? 'full' : null}
             />
