@@ -8,6 +8,7 @@ import {
   theme,
   Image,
   Button,
+  Progress
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
@@ -38,15 +39,28 @@ function App() {
   const [error, setError] = React.useState(false);
   const [done, setDone] = React.useState(false);
   const [inProgress, setInProgress] = React.useState(false);
+  const [downloadedCount, setDownloadedCount] = React.useState(0);
 
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
-    for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
-      for (const [size_name, size_value] of Object.entries(SIZES)) {
-        const response = await axios.get(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`, { responseType: 'blob' });
-        await zipWriter.add(`${size_name}/${emo_name}.png`, new zip.BlobReader(response.data));
+    let promises = []; // whee
+
+    try {
+      for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
+        for (const [size_name, size_value] of Object.entries(SIZES)) {
+          let p = new Promise(async (resolve, reject) => {
+            const response = await axios.get(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`, { responseType: 'blob' });
+            await zipWriter.add(`${size_name}/${emo_name}.png`, new zip.BlobReader(response.data));
+            setDownloadedCount(previous => previous + 1);
+            resolve();
+          });
+          promises.push(p);
+        };
       }
+      await Promise.all(promises); // Grab 'em all!
+    } catch (error) {
+      alert(error);
     }
 
     const dataURI = URL.createObjectURL(await zipWriter.close());
@@ -80,6 +94,7 @@ function App() {
     setDone(false);
     setInProgress(false);
     setError(false);
+    setDownloadedCount(0);
   };
 
   return (
@@ -103,6 +118,12 @@ function App() {
               onClick={getSci}>
               Do the thing
             </Button>
+            <Progress 
+              hasStripe 
+              value={100 * (downloadedCount/40)}
+              size='md'
+              width={inProgress ? 'full' : null}
+            />
           </VStack>
         </Grid>
       </Box>
