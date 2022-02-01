@@ -8,7 +8,7 @@ import {
   theme,
   Image,
   Button,
-  Progress
+  Progress,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
@@ -118,9 +118,9 @@ function App() {
               onClick={getSci}>
               Do the thing
             </Button>
-            <Progress 
-              hasStripe 
-              value={100 * (downloadedCount/40)}
+            <Progress
+              hasStripe
+              value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
               size='md'
               width={inProgress ? 'full' : null}
             />
