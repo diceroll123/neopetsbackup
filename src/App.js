@@ -49,13 +49,15 @@ function App() {
     try {
       for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
         for (const [size_name, size_value] of Object.entries(SIZES)) {
-          let p = new Promise(async (resolve, reject) => {
-            const response = await axios.get(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`, { responseType: 'blob' });
-            await zipWriter.add(`${size_name}/${emo_name}.png`, new zip.BlobReader(response.data));
-            setDownloadedCount(previous => previous + 1);
-            resolve();
-          });
-          promises.push(p);
+          promises.push(
+            fetch(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`)
+              .then(async (response) => {
+                const path = `${size_name}/${emo_name}.png`;
+                const blob = await response.blob();
+                await zipWriter.add(path, new zip.BlobReader(blob))
+                setDownloadedCount(previous => previous + 1);
+              })
+          );
         };
       }
       await Promise.all(promises); // Grab 'em all!
