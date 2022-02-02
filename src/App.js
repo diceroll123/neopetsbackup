@@ -1,11 +1,9 @@
 import React from 'react';
 import {
-  ChakraProvider,
   Box,
   VStack,
   Grid,
   Input,
-  theme,
   Image,
   Button,
   HStack,
