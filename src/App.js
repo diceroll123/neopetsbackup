@@ -125,7 +125,7 @@ function App() {
         error,
         petName
       };
-      setAlreadySavedPets(existingArray => [...existingArray, newPet]);
+      setAlreadySavedPets(existingArray => [newPet, ...existingArray]);
     }
   };
 
