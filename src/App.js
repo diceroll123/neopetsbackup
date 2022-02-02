@@ -78,11 +78,13 @@ function App() {
   const [done, setDone] = React.useState(false);
   const [inProgress, setInProgress] = React.useState(false);
   const [downloadedCount, setDownloadedCount] = React.useState(0);
+  const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
 
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
     let promises = []; // whee
+    let error = undefined;
 
     try {
       for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
@@ -99,8 +101,9 @@ function App() {
         };
       }
       await Promise.all(promises); // Grab 'em all!
-    } catch (error) {
-      alert(error);
+    } catch (e) {
+      error = e;
+      alert(e);
     }
 
     const dataURI = URL.createObjectURL(await zipWriter.close());
@@ -110,6 +113,15 @@ function App() {
     anchor.href = dataURI;
     anchor.download = `${name}-${sci}.zip`;
     anchor.dispatchEvent(clickEvent);
+    URL.revokeObjectURL(dataURI);
+
+    if (alreadySavedPets.filter(pet => pet.petName === petName).length === 0) {
+      const newPet = {
+        error,
+        petName
+      };
+      setAlreadySavedPets(existingArray => [...existingArray, newPet]);
+    }
   };
 
   const getSci = async () => {
@@ -143,7 +155,7 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
+        <Grid p={3} >
           <ColorModeSwitcher justifySelf="flex-end" />
           <VStack spacing={8} divider={<Divider maxW='3xl' />}>
             <HStack>
@@ -195,6 +207,37 @@ function App() {
                 />
               </Stack>
             </HStack>
+            {alreadySavedPets.map(({error, petName}) => <HStack>
+              <Image
+                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+                title={petName}
+                fallback={
+                  <SkeletonCircle
+                    boxSize='70px'
+                  />
+                }
+                borderRadius='full'
+                boxSize='70px'
+              />
+              <Stack
+                as={Box}
+                minWidth={'xl'}
+                spacing={4}>
+                <HStack>
+                  <Box textColor={error ? 'red.300' : null}>
+                    {petName}
+                  </Box>
+                </HStack>
+                <Progress
+                  hasStripe
+                  isAnimated={false}
+                  value={100}
+                  size='md'
+                  width='full'
+                  colorScheme={error ? 'red' : 'blue'}
+                />
+              </Stack>
+            </HStack>)}
           </VStack>
         </Grid>
       </Box>
