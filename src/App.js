@@ -15,6 +15,7 @@ import {
   useColorModeValue,
   Divider,
   SkeletonCircle,
+  useToast,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
@@ -79,6 +80,7 @@ function App() {
   const [inProgress, setInProgress] = React.useState(false);
   const [downloadedCount, setDownloadedCount] = React.useState(0);
   const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
+  const toast = useToast();
 
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
@@ -103,7 +105,12 @@ function App() {
       await Promise.all(promises); // Grab 'em all!
     } catch (e) {
       error = e;
-      alert(e);
+      toast({
+        id: name,
+        status: 'error',
+        title: `Error downloading ${name}'s images: ${e}`,
+        isClosable: true
+      });
     }
 
     const dataURI = URL.createObjectURL(await zipWriter.close());
@@ -135,7 +142,12 @@ function App() {
       await makeZip(petName, response.headers['x-final-url'].split('/')[4]);
 
     } catch (error) {
-      // alert(error);
+      toast({
+        id: 'getSci',
+        status: 'error',
+        title: `Error downloading ${petName}'s images - make sure you spelled their name correctly.`,
+        isClosable: true
+      });
       setError(true);
       setDone(true);
     }
@@ -153,95 +165,93 @@ function App() {
   const green = useColorModeValue('green.300', 'green.500');
 
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid p={3} >
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8} divider={<Divider maxW='3xl' />}>
-            <HStack>
-              <Image
-                borderRadius='full'
-                boxSize='350px'
-                src='/alex.png'
-                title='Eggy Weggs!'
-              />
-              <About />
-            </HStack>
-            <HStack>
-              <Image
-                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
-                title={petName}
-                fallback={
-                  <SkeletonCircle
-                    boxSize='70px'
-                  />
-                }
-                borderRadius='full'
-                boxSize='70px'
-              />
-              <Stack
-                as={Box}
-                minWidth={'xl'}
-                spacing={4}>
-                <HStack>
-                  <Input
-                    borderColor={green}
-                    value={petName}
-                    isInvalid={error && petName}
-                    onChange={handlePetNameChange}
-                    placeholder="Enter a Neopet's name" />
-                  <Button
-                    disabled={error || !petName || done || inProgress}
-                    onClick={getSci}
-                    bgColor={green}
-                  >
-                    Download
-                  </Button>
-                </HStack>
-                <Progress
-                  hasStripe
-                  isAnimated={true}
-                  value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
-                  size='md'
-                  width={inProgress ? 'full' : null}
+    <Box textAlign="center" fontSize="xl">
+      <Grid p={3} >
+        <ColorModeSwitcher justifySelf="flex-end" />
+        <VStack spacing={8} divider={<Divider maxW='3xl' />}>
+          <HStack>
+            <Image
+              borderRadius='full'
+              boxSize='350px'
+              src='/alex.png'
+              title='Eggy Weggs!'
+            />
+            <About />
+          </HStack>
+          <HStack>
+            <Image
+              src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+              title={petName}
+              fallback={
+                <SkeletonCircle
+                  boxSize='70px'
                 />
-              </Stack>
-            </HStack>
-            {alreadySavedPets.map(({error, petName}) => <HStack>
-              <Image
-                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
-                title={petName}
-                fallback={
-                  <SkeletonCircle
-                    boxSize='70px'
-                  />
-                }
-                borderRadius='full'
-                boxSize='70px'
+              }
+              borderRadius='full'
+              boxSize='70px'
+            />
+            <Stack
+              as={Box}
+              minWidth={'xl'}
+              spacing={4}>
+              <HStack>
+                <Input
+                  borderColor={green}
+                  value={petName}
+                  isInvalid={error && petName}
+                  onChange={handlePetNameChange}
+                  placeholder="Enter a Neopet's name" />
+                <Button
+                  disabled={error || !petName || done || inProgress}
+                  onClick={getSci}
+                  bgColor={green}
+                >
+                  Download
+                </Button>
+              </HStack>
+              <Progress
+                hasStripe
+                isAnimated={true}
+                value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
+                size='md'
+                width={inProgress ? 'full' : null}
               />
-              <Stack
-                as={Box}
-                minWidth={'xl'}
-                spacing={4}>
-                <HStack>
-                  <Box textColor={error ? 'red.300' : null}>
-                    {petName}
-                  </Box>
-                </HStack>
-                <Progress
-                  hasStripe
-                  isAnimated={false}
-                  value={100}
-                  size='md'
-                  width='full'
-                  colorScheme={error ? 'red' : 'blue'}
+            </Stack>
+          </HStack>
+          {alreadySavedPets.map(({error, petName}) => <HStack>
+            <Image
+              src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+              title={petName}
+              fallback={
+                <SkeletonCircle
+                  boxSize='70px'
                 />
-              </Stack>
-            </HStack>)}
-          </VStack>
-        </Grid>
-      </Box>
-    </ChakraProvider>
+              }
+              borderRadius='full'
+              boxSize='70px'
+            />
+            <Stack
+              as={Box}
+              minWidth={'xl'}
+              spacing={4}>
+              <HStack>
+                <Box textColor={error ? 'red.300' : null}>
+                  {petName}
+                </Box>
+              </HStack>
+              <Progress
+                hasStripe
+                isAnimated={false}
+                value={100}
+                size='md'
+                width='full'
+                colorScheme={error ? 'red' : 'blue'}
+              />
+            </Stack>
+          </HStack>)}
+        </VStack>
+      </Grid>
+    </Box>
   );
 }
 
