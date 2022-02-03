@@ -136,6 +136,7 @@ function App() {
   };
 
   const getSci = async () => {
+    if (petName === "") { return; }
     setInProgress(true);
     try {
       // TODO: use fetch for this request + remove axios dependency
@@ -206,7 +207,9 @@ function App() {
                   value={petName}
                   isInvalid={error && petName}
                   onChange={handlePetNameChange}
-                  placeholder="Enter a Neopet's name" />
+                  placeholder="Enter a Neopet's name"
+                  onKeyPress={(e) => e.key === 'Enter' && getSci(petName) }
+                />
                 <Button
                   disabled={error || !petName || done || inProgress}
                   onClick={getSci}
