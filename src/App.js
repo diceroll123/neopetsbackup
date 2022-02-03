@@ -131,6 +131,8 @@ function App() {
 
     addPetToState(petName, error);
     setPetName("");
+    setInProgress(false);
+    setDownloadedCount(0);
   };
 
   const getSci = async () => {
@@ -229,6 +231,8 @@ function App() {
               fallback={
                 <SkeletonCircle
                   boxSize='70px'
+                  startColor='red.300'
+                  endColor='red.300'
                 />
               }
               borderRadius='full'
@@ -240,7 +244,7 @@ function App() {
               spacing={4}>
               <HStack>
                 <Box textColor={error ? 'red.300' : null}>
-                  {petName}
+                  {petName} {error && "(Error)"}
                 </Box>
               </HStack>
               <Progress
