@@ -80,6 +80,15 @@ function App() {
   const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
   const toast = useToast();
 
+  const addPetToState = (petName, error) => {
+    const petIndex = alreadySavedPets.findIndex(pet => pet.petName === petName);
+    const newPet = {
+      error,
+      petName
+    };
+    setAlreadySavedPets(existingArray => [newPet, ...existingArray.filter((_, i) => i !== petIndex)]);
+  }
+
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
@@ -120,13 +129,8 @@ function App() {
     anchor.dispatchEvent(clickEvent);
     URL.revokeObjectURL(dataURI);
 
-    if (alreadySavedPets.filter(pet => pet.petName === petName).length === 0) {
-      const newPet = {
-        error,
-        petName
-      };
-      setAlreadySavedPets(existingArray => [newPet, ...existingArray]);
-    }
+    addPetToState(petName, error);
+    setPetName("");
   };
 
   const getSci = async () => {
@@ -146,6 +150,8 @@ function App() {
         title: `Error downloading ${petName}'s images - make sure you spelled their name correctly.`,
         isClosable: true
       });
+      addPetToState(petName, true);
+      setPetName("");
       setError(true);
       setDone(true);
     }
