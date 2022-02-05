@@ -90,7 +90,7 @@ function App() {
     });
   };
 
-  const updatePetInState = (petName, data) => {   
+  const updatePetInState = (petName, data) => {
     setAlreadySavedPets(existingArray => {
       const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase()));
       const existingPet = existingArray[petIndex];
@@ -98,7 +98,7 @@ function App() {
         ...existingPet,
         ...data,
       };
-      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex+1)]
+      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex + 1)]
     });
   };
 
@@ -110,7 +110,7 @@ function App() {
         ...existingPet,
         downloaded: (existingPet?.downloaded ?? 0) + 1,
       };
-      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex+1)]
+      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex + 1)]
     });
   };
 
@@ -154,7 +154,7 @@ function App() {
     anchor.dispatchEvent(clickEvent);
     URL.revokeObjectURL(dataURI);
 
-    updatePetInState(petName, {error, done: true});
+    updatePetInState(petName, { error, done: true });
   };
 
   const getSci = async (petName) => {
@@ -173,7 +173,7 @@ function App() {
         title: `Error downloading ${petName}'s images - make sure you spelled their name correctly.`,
         isClosable: true
       });
-      updatePetInState(petName, {error: true});
+      updatePetInState(petName, { error: true });
     }
   };
 
@@ -222,11 +222,11 @@ function App() {
                   value={petName}
                   onChange={handlePetNameChange}
                   placeholder="Enter a Neopet's name"
-                  onKeyPress={(e) => e.key === 'Enter' && getSci(petName) }
+                  onKeyPress={(e) => e.key === 'Enter' && getSci(petName)}
                 />
                 <Button
                   disabled={!petName}
-                  onClick={getSci}
+                  onClick={() => getSci(petName)}
                   bgColor={green}
                 >
                   Download
@@ -241,7 +241,7 @@ function App() {
               />
             </Stack>
           </HStack>
-          {alreadySavedPets.map(({error, petName, downloaded, done}) => <HStack>
+          {alreadySavedPets.map(({ error, petName, downloaded, done }) => <HStack>
             <Image
               src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
               title={petName}
