@@ -78,7 +78,7 @@ function App() {
 
   const addPetToState = (petName, error) => {
     setAlreadySavedPets(existingArray => {
-      const petIndex = existingArray.findIndex(pet => pet.petName === petName);
+      const petIndex = existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase());
       const newPet = {
         error,
         petName,
@@ -91,7 +91,7 @@ function App() {
 
   const updatePetInState = (petName, data) => {   
     setAlreadySavedPets(existingArray => {
-      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName === petName));
+      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase()));
       const existingPet = existingArray[petIndex];
       const newPet = { // a neoPet, in a way
         ...existingPet,
@@ -103,7 +103,7 @@ function App() {
 
   const incrementDownloadedForPet = (petName) => {
     setAlreadySavedPets(existingArray => {
-      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName === petName));
+      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase()));
       const existingPet = existingArray[petIndex];
       const newPet = {
         ...existingPet,
@@ -111,7 +111,7 @@ function App() {
       };
       return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex+1)]
     });
-  }
+  };
 
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
