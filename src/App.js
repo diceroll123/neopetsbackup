@@ -73,20 +73,44 @@ function About() {
 
 function App() {
   const [petName, setPetName] = React.useState('');
-  const [error, setError] = React.useState(false);
-  const [done, setDone] = React.useState(false);
-  const [inProgress, setInProgress] = React.useState(false);
-  const [downloadedCount, setDownloadedCount] = React.useState(0);
   const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
   const toast = useToast();
 
   const addPetToState = (petName, error) => {
-    const petIndex = alreadySavedPets.findIndex(pet => pet.petName === petName);
-    const newPet = {
-      error,
-      petName
-    };
-    setAlreadySavedPets(existingArray => [newPet, ...existingArray.filter((_, i) => i !== petIndex)]);
+    setAlreadySavedPets(existingArray => {
+      const petIndex = existingArray.findIndex(pet => pet.petName === petName);
+      const newPet = {
+        error,
+        petName,
+        downloaded: 0,
+        done: false,
+      };
+      return [newPet, ...existingArray.filter((_, i) => i !== petIndex)]
+    });
+  };
+
+  const updatePetInState = (petName, data) => {   
+    setAlreadySavedPets(existingArray => {
+      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName === petName));
+      const existingPet = existingArray[petIndex];
+      const newPet = { // a neoPet, in a way
+        ...existingPet,
+        ...data,
+      };
+      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex+1)]
+    });
+  };
+
+  const incrementDownloadedForPet = (petName) => {
+    setAlreadySavedPets(existingArray => {
+      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName === petName));
+      const existingPet = existingArray[petIndex];
+      const newPet = {
+        ...existingPet,
+        downloaded: (existingPet?.downloaded ?? 0) + 1,
+      };
+      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex+1)]
+    });
   }
 
   const makeZip = async (name, sci) => {
@@ -104,7 +128,7 @@ function App() {
                 const path = `${size_name}/${emo_name}.png`;
                 const blob = await response.blob();
                 await zipWriter.add(path, new zip.BlobReader(blob))
-                setDownloadedCount(previous => previous + 1);
+                incrementDownloadedForPet(name);
               })
           );
         };
@@ -129,21 +153,16 @@ function App() {
     anchor.dispatchEvent(clickEvent);
     URL.revokeObjectURL(dataURI);
 
-    addPetToState(petName, error);
-    setPetName("");
-    setInProgress(false);
-    setDownloadedCount(0);
+    updatePetInState(petName, {error, done: true});
   };
 
-  const getSci = async () => {
+  const getSci = async (petName) => {
     if (petName === "") { return; }
-    setInProgress(true);
     try {
       // TODO: use fetch for this request + remove axios dependency
+      addPetToState(petName, false);
+      setPetName("");
       const response = await axios.head(`http://localhost:8080/http://pets.neopets.com/cpn/${petName}/1/1.png`);
-      setError(false);
-      setDone(true);
-
       await makeZip(petName, response.headers['x-final-url'].split('/')[4]);
 
     } catch (error) {
@@ -153,20 +172,13 @@ function App() {
         title: `Error downloading ${petName}'s images - make sure you spelled their name correctly.`,
         isClosable: true
       });
-      addPetToState(petName, true);
-      setPetName("");
-      setError(true);
-      setDone(true);
+      updatePetInState(petName, {error: true});
     }
   };
 
   const handlePetNameChange = (event) => {
     let name = event.target.value;
     setPetName(name);
-    setDone(false);
-    setInProgress(false);
-    setError(false);
-    setDownloadedCount(0);
   };
 
   const green = useColorModeValue('green.300', 'green.500');
@@ -205,13 +217,12 @@ function App() {
                 <Input
                   borderColor={green}
                   value={petName}
-                  isInvalid={error && petName}
                   onChange={handlePetNameChange}
                   placeholder="Enter a Neopet's name"
                   onKeyPress={(e) => e.key === 'Enter' && getSci(petName) }
                 />
                 <Button
-                  disabled={error || !petName || done || inProgress}
+                  disabled={!petName}
                   onClick={getSci}
                   bgColor={green}
                 >
@@ -221,13 +232,13 @@ function App() {
               <Progress
                 hasStripe
                 isAnimated={true}
-                value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
+                value={0}
                 size='md'
-                width={inProgress ? 'full' : null}
+                width={null}
               />
             </Stack>
           </HStack>
-          {alreadySavedPets.map(({error, petName}) => <HStack>
+          {alreadySavedPets.map(({error, petName, downloaded, done}) => <HStack>
             <Image
               src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
               title={petName}
@@ -252,8 +263,8 @@ function App() {
               </HStack>
               <Progress
                 hasStripe
-                isAnimated={false}
-                value={100}
+                isAnimated={!done}
+                value={(done && !error) ? 100 : 100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
                 size='md'
                 width='full'
                 colorScheme={error ? 'red' : 'blue'}
