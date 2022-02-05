@@ -14,7 +14,10 @@ import {
   Divider,
   SkeletonCircle,
   useToast,
+  Badge,
+  Link,
 } from '@chakra-ui/react';
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
 import * as zip from "@zip.js/zip.js";
@@ -199,7 +202,7 @@ function App() {
             />
             <About />
           </HStack>
-          <HStack>
+          <HStack minWidth={'2xl'} spacing={4}>
             <Image
               src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
               title={petName}
@@ -212,68 +215,70 @@ function App() {
               boxSize='70px'
               onLoad={() => setCanDownload(true)}
             />
-            <Stack
-              as={Box}
-              minWidth={'xl'}
-              spacing={4}>
-              <HStack>
-                <Input
-                  borderColor={green}
-                  value={petName}
-                  onChange={handlePetNameChange}
-                  placeholder="Enter a Neopet's name"
-                  onKeyPress={(e) => e.key === 'Enter' && getSci(petName)}
-                />
-                <Button
-                  disabled={!petName}
-                  onClick={() => getSci(petName)}
-                  bgColor={green}
-                >
-                  Download
-                </Button>
-              </HStack>
-              <Progress
-                hasStripe
-                isAnimated={true}
-                value={0}
-                size='md'
-                width={null}
+            <HStack>
+              <Input
+                minWidth={'md'}
+                borderColor={green}
+                value={petName}
+                onChange={handlePetNameChange}
+                placeholder="Enter a Neopet's name"
+                onKeyPress={(e) => e.key === 'Enter' && getSci(petName)}
               />
-            </Stack>
+              <Button
+                disabled={!petName}
+                onClick={() => getSci(petName)}
+                bgColor={green}
+              >
+                Download
+              </Button>
+            </HStack>
           </HStack>
-          {alreadySavedPets.map(({ error, petName, downloaded, done }) => <HStack>
-            <Image
-              src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
-              title={petName}
-              fallback={
-                <SkeletonCircle
-                  boxSize='70px'
-                  startColor='red.300'
-                  endColor='red.300'
-                />
-              }
-              borderRadius='full'
-              boxSize='70px'
-            />
-            <Stack
-              as={Box}
-              minWidth={'xl'}
-              spacing={4}>
-              <HStack>
-                <Box textColor={error ? 'red.300' : null}>
-                  {petName} {error && "(Error)"}
-                </Box>
-              </HStack>
-              <Progress
-                hasStripe
-                isAnimated={!done}
-                value={(done && !error) ? 100 : 100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
-                size='md'
-                width='full'
-                colorScheme={error ? 'red' : 'blue'}
+          {alreadySavedPets.map(({ error, petName, downloaded, done }) => (
+            <HStack minWidth={'2xl'} key={petName}>
+              <Image
+                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+                title={petName}
+                fallback={
+                  <SkeletonCircle
+                    boxSize='70px'
+                    startColor='red.300'
+                    endColor='red.300'
+                    mr={2}
+                  />
+                }
+                borderRadius='full'
+                boxSize='70px'
+                mr={2}
               />
-            </Stack>
-          </HStack>)}
+              <VStack minW='lg' alignItems={'start'}>
+                <Box textColor={error ? 'red.300' : null}>
+                  <Link href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`} isExternal>{petName} <ExternalLinkIcon /></Link>
+                </Box>
+                {error ?
+                  (
+                    <Badge colorScheme='red'>ERROR</Badge>
+                  ) :
+                  (
+                    <>
+                      {done ?
+                        (
+                          <Badge colorScheme='green'>SUCCESS</Badge>
+                        ) :
+                        (
+                          <Progress
+                            hasStripe
+                            isAnimated
+                            value={100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
+                            width='full'
+                            colorScheme={'blue'}
+                          />
+                        )
+                      }
+                    </>
+                  )}
+              </VStack>
+            </HStack>
+          ))}
         </VStack>
       </Grid>
     </Box>
