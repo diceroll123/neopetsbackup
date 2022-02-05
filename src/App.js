@@ -74,6 +74,7 @@ function About() {
 function App() {
   const [petName, setPetName] = React.useState('');
   const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
+  const [canDownload, setCanDownload] = React.useState(false);
   const toast = useToast();
 
   const addPetToState = (petName, error) => {
@@ -157,7 +158,7 @@ function App() {
   };
 
   const getSci = async (petName) => {
-    if (petName === "") { return; }
+    if (petName === "" || !canDownload) { return; }
     try {
       // TODO: use fetch for this request + remove axios dependency
       addPetToState(petName, false);
@@ -179,6 +180,7 @@ function App() {
   const handlePetNameChange = (event) => {
     let name = event.target.value;
     setPetName(name);
+    setCanDownload(false);
   };
 
   const green = useColorModeValue('green.300', 'green.500');
@@ -208,6 +210,7 @@ function App() {
               }
               borderRadius='full'
               boxSize='70px'
+              onLoad={() => setCanDownload(true)}
             />
             <Stack
               as={Box}
