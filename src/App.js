@@ -1,11 +1,9 @@
 import React from 'react';
 import {
-  ChakraProvider,
   Box,
   VStack,
   Grid,
   Input,
-  theme,
   Image,
   Button,
   HStack,
@@ -15,7 +13,11 @@ import {
   useColorModeValue,
   Divider,
   SkeletonCircle,
+  useToast,
+  Badge,
+  Link,
 } from '@chakra-ui/react';
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
 import * as zip from "@zip.js/zip.js";
@@ -74,15 +76,52 @@ function About() {
 
 function App() {
   const [petName, setPetName] = React.useState('');
-  const [error, setError] = React.useState(false);
-  const [done, setDone] = React.useState(false);
-  const [inProgress, setInProgress] = React.useState(false);
-  const [downloadedCount, setDownloadedCount] = React.useState(0);
+  const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
+  const [canDownload, setCanDownload] = React.useState(false);
+  const toast = useToast();
+
+  const addPetToState = (petName, error) => {
+    setAlreadySavedPets(existingArray => {
+      const petIndex = existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase());
+      const newPet = {
+        error,
+        petName,
+        downloaded: 0,
+        done: false,
+      };
+      return [newPet, ...existingArray.filter((_, i) => i !== petIndex)]
+    });
+  };
+
+  const updatePetInState = (petName, data) => {
+    setAlreadySavedPets(existingArray => {
+      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase()));
+      const existingPet = existingArray[petIndex];
+      const newPet = { // a neoPet, in a way
+        ...existingPet,
+        ...data,
+      };
+      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex + 1)]
+    });
+  };
+
+  const incrementDownloadedForPet = (petName) => {
+    setAlreadySavedPets(existingArray => {
+      const petIndex = Math.max(0, existingArray.findIndex(pet => pet.petName.toLowerCase() === petName.toLowerCase()));
+      const existingPet = existingArray[petIndex];
+      const newPet = {
+        ...existingPet,
+        downloaded: (existingPet?.downloaded ?? 0) + 1,
+      };
+      return [...existingArray.slice(0, petIndex), newPet, ...existingArray.slice(petIndex + 1)]
+    });
+  };
 
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter("application/zip"));
 
     let promises = []; // whee
+    let error = undefined;
 
     try {
       for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
@@ -93,14 +132,20 @@ function App() {
                 const path = `${size_name}/${emo_name}.png`;
                 const blob = await response.blob();
                 await zipWriter.add(path, new zip.BlobReader(blob))
-                setDownloadedCount(previous => previous + 1);
+                incrementDownloadedForPet(name);
               })
           );
         };
       }
       await Promise.all(promises); // Grab 'em all!
-    } catch (error) {
-      alert(error);
+    } catch (e) {
+      error = e;
+      toast({
+        id: name,
+        status: 'error',
+        title: `Error downloading ${name}'s images: ${e}`,
+        isClosable: true
+      });
     }
 
     const dataURI = URL.createObjectURL(await zipWriter.close());
@@ -110,95 +155,133 @@ function App() {
     anchor.href = dataURI;
     anchor.download = `${name}-${sci}.zip`;
     anchor.dispatchEvent(clickEvent);
+    URL.revokeObjectURL(dataURI);
+
+    updatePetInState(petName, { error, done: true });
   };
 
-  const getSci = async () => {
-    setInProgress(true);
+  const getSci = async (petName) => {
+    if (petName === "" || !canDownload) { return; }
     try {
       // TODO: use fetch for this request + remove axios dependency
+      addPetToState(petName, false);
+      setPetName("");
       const response = await axios.head(`http://localhost:8080/http://pets.neopets.com/cpn/${petName}/1/1.png`);
-      setError(false);
-      setDone(true);
-
       await makeZip(petName, response.headers['x-final-url'].split('/')[4]);
 
     } catch (error) {
-      // alert(error);
-      setError(true);
-      setDone(true);
+      toast({
+        id: 'getSci',
+        status: 'error',
+        title: `Error downloading ${petName}'s images - make sure you spelled their name correctly.`,
+        isClosable: true
+      });
+      updatePetInState(petName, { error: true });
     }
   };
 
   const handlePetNameChange = (event) => {
     let name = event.target.value;
     setPetName(name);
-    setDone(false);
-    setInProgress(false);
-    setError(false);
-    setDownloadedCount(0);
+    setCanDownload(false);
   };
 
   const green = useColorModeValue('green.300', 'green.500');
 
   return (
-    <ChakraProvider theme={theme}>
-      <Box textAlign="center" fontSize="xl">
-        <Grid minH="100vh" p={3}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8} divider={<Divider maxW='3xl' />}>
+    <Box textAlign="center" fontSize="xl">
+      <Grid p={3} >
+        <ColorModeSwitcher justifySelf="flex-end" />
+        <VStack spacing={8} divider={<Divider maxW='3xl' />}>
+          <HStack>
+            <Image
+              borderRadius='full'
+              boxSize='350px'
+              src='/alex.png'
+              title='Eggy Weggs!'
+            />
+            <About />
+          </HStack>
+          <HStack minWidth={'2xl'} spacing={4}>
+            <Image
+              src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+              title={petName}
+              fallback={
+                <SkeletonCircle
+                  boxSize='70px'
+                />
+              }
+              borderRadius='full'
+              boxSize='70px'
+              onLoad={() => setCanDownload(true)}
+            />
             <HStack>
-              <Image
-                borderRadius='full'
-                boxSize='350px'
-                src='/alex.png'
-                title='Eggy Weggs!'
+              <Input
+                minWidth={'md'}
+                borderColor={green}
+                value={petName}
+                onChange={handlePetNameChange}
+                placeholder="Enter a Neopet's name"
+                onKeyPress={(e) => e.key === 'Enter' && getSci(petName)}
               />
-              <About />
+              <Button
+                disabled={!petName}
+                onClick={() => getSci(petName)}
+                bgColor={green}
+              >
+                Download
+              </Button>
             </HStack>
-            <HStack>
+          </HStack>
+          {alreadySavedPets.map(({ error, petName, downloaded, done }) => (
+            <HStack minWidth={'2xl'} key={petName}>
               <Image
                 src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
                 title={petName}
                 fallback={
                   <SkeletonCircle
                     boxSize='70px'
+                    startColor='red.300'
+                    endColor='red.300'
+                    mr={2}
                   />
                 }
                 borderRadius='full'
                 boxSize='70px'
+                mr={2}
               />
-              <Stack
-                as={Box}
-                minWidth={'xl'}
-                spacing={4}>
-                <HStack>
-                  <Input
-                    borderColor={green}
-                    value={petName}
-                    isInvalid={error && petName}
-                    onChange={handlePetNameChange}
-                    placeholder="Enter a Neopet's name" />
-                  <Button
-                    disabled={error || !petName || done || inProgress}
-                    onClick={getSci}
-                    bgColor={green}
-                  >
-                    Download
-                  </Button>
-                </HStack>
-                <Progress
-                  hasStripe
-                  isAnimated={true}
-                  value={100 * (downloadedCount / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
-                  size='md'
-                  width={inProgress ? 'full' : null}
-                />
-              </Stack>
+              <VStack minW='lg' alignItems={'start'}>
+                <Box textColor={error ? 'red.300' : null}>
+                  <Link href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`} isExternal>{petName} <ExternalLinkIcon /></Link>
+                </Box>
+                {error ?
+                  (
+                    <Badge colorScheme='red'>ERROR</Badge>
+                  ) :
+                  (
+                    <>
+                      {done ?
+                        (
+                          <Badge colorScheme='green'>SUCCESS</Badge>
+                        ) :
+                        (
+                          <Progress
+                            hasStripe
+                            isAnimated
+                            value={100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
+                            width='full'
+                            colorScheme={'blue'}
+                          />
+                        )
+                      }
+                    </>
+                  )}
+              </VStack>
             </HStack>
-          </VStack>
-        </Grid>
-      </Box>
-    </ChakraProvider>
+          ))}
+        </VStack>
+      </Grid>
+    </Box>
   );
 }
 
