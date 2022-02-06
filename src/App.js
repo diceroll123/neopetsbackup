@@ -5,14 +5,13 @@ import {
     Grid,
     Divider,
     useToast,
-    SimpleGrid,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
 import * as zip from "@zip.js/zip.js";
 import About from './components/About';
 import EnterNeopetName from './components/EnterNeopetName';
-import SavedPet from './components/SavedPet';
+import SavedPets from './components/SavedPets';
 import { EMOTIONS, SIZES } from './utils/constants';
 
 
@@ -144,17 +143,8 @@ function App() {
                         getSci={getSci}
                     />
 
-                    <SimpleGrid columns={3} spacing={4} minWidth={'xl'}>
-                        {alreadySavedPets.map(({ error, petName, downloaded, done, bytes }) => (
-                            <SavedPet
-                                error={error}
-                                petName={petName}
-                                downloaded={downloaded}
-                                done={done}
-                                bytes={bytes}
-                            />
-                        ))}
-                    </SimpleGrid>
+
+                    <SavedPets alreadySavedPets={alreadySavedPets} />
 
                 </VStack>
             </Grid>
