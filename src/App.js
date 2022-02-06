@@ -16,6 +16,7 @@ import {
   useToast,
   Badge,
   Link,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ColorModeSwitcher } from './ColorModeSwitcher';
@@ -233,52 +234,54 @@ function App() {
               </Button>
             </HStack>
           </HStack>
-          {alreadySavedPets.map(({ error, petName, downloaded, done }) => (
-            <HStack minWidth={'2xl'} key={petName}>
-              <Image
-                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
-                title={petName}
-                fallback={
-                  <SkeletonCircle
-                    boxSize='70px'
-                    startColor='red.300'
-                    endColor='red.300'
-                    mr={2}
-                  />
-                }
-                borderRadius='full'
-                boxSize='70px'
-                mr={2}
-              />
-              <VStack minW='lg' alignItems={'start'}>
-                <Box textColor={error ? 'red.300' : null}>
-                  <Link href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`} isExternal>{petName} <ExternalLinkIcon /></Link>
-                </Box>
-                {error ?
-                  (
-                    <Badge colorScheme='red'>ERROR</Badge>
-                  ) :
-                  (
-                    <>
-                      {done ?
-                        (
-                          <Badge colorScheme='green'>SUCCESS</Badge>
-                        ) :
-                        (
-                          <Progress
-                            hasStripe
-                            isAnimated
-                            value={100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
-                            width='full'
-                            colorScheme={'blue'}
-                          />
-                        )
-                      }
-                    </>
-                  )}
-              </VStack>
-            </HStack>
-          ))}
+          <SimpleGrid columns={3} spacing={4} minWidth={'xl'}>
+            {alreadySavedPets.map(({ error, petName, downloaded, done }) => (
+              <Box as={HStack} key={petName} borderWidth='1px' borderRadius='lg' p={2} minW='230px'>
+                <Image
+                  src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+                  title={petName}
+                  fallback={
+                    <SkeletonCircle
+                      boxSize='70px'
+                      startColor='red.300'
+                      endColor='red.300'
+                      mr={2}
+                    />
+                  }
+                  borderRadius='full'
+                  boxSize='70px'
+                  mr={2}
+                />
+                <VStack w='full' alignItems={'start'}>
+                  <Box textColor={error ? 'red.300' : null}>
+                    <Link href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`} isExternal>{petName} <ExternalLinkIcon /></Link>
+                  </Box>
+                  {error ?
+                    (
+                      <Badge colorScheme='red'>ERROR</Badge>
+                    ) :
+                    (
+                      <>
+                        {done ?
+                          (
+                            <Badge colorScheme='green'>SUCCESS</Badge>
+                          ) :
+                          (
+                            <Progress
+                              hasStripe
+                              isAnimated
+                              value={100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
+                              width='full'
+                              colorScheme={'blue'}
+                            />
+                          )
+                        }
+                      </>
+                    )}
+                </VStack>
+              </Box>
+            ))}
+          </SimpleGrid>
         </VStack>
       </Grid>
     </Box>
