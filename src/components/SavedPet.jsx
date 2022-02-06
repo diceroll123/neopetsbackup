@@ -8,13 +8,15 @@ import {
     SkeletonCircle,
     Badge,
     Link,
+    Icon,
 } from '@chakra-ui/react';
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { FaFileArchive } from 'react-icons/fa';
 import { EMOTIONS, SIZES } from '../utils/constants';
 
 const SavedPet = (props) => {
     // one instance of the container of a pet that is either downloaded, to be downloaded, or errored.
-    const { error, petName, downloaded, done } = props;
+    const { error, petName, downloaded, done, bytes } = props;
 
     return (
         <Box as={HStack} key={petName} borderWidth='1px' borderRadius='lg' p={2} minW='230px'>
@@ -45,7 +47,15 @@ const SavedPet = (props) => {
                         <>
                             {done ?
                                 (
-                                    <Badge colorScheme='green'>SUCCESS</Badge>
+                                    <Box>
+                                        <Badge colorScheme='green'>SUCCESS</Badge>
+                                        {' '}
+                                        <Badge colorScheme='blue'>
+                                            <Icon boxSize='14px' as={FaFileArchive} mb={'-2px'} />
+                                            {' '}
+                                            {(bytes / (1024 * 1024)).toFixed(2)}MB
+                                        </Badge>
+                                    </Box>
                                 ) :
                                 (
                                     <Progress

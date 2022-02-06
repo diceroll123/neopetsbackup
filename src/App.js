@@ -30,6 +30,7 @@ function App() {
                 petName,
                 downloaded: 0,
                 done: false,
+                bytes: 0,
             };
             return [newPet, ...existingArray.filter((_, i) => i !== petIndex)]
         });
@@ -99,7 +100,7 @@ function App() {
         anchor.dispatchEvent(clickEvent);
         URL.revokeObjectURL(dataURI);
 
-        updatePetInState(petName, { error, done: true });
+        updatePetInState(petName, { error, done: true, bytes: zipWriter?.writer?.size || 0 });
     };
 
     const getSci = async (petName) => {
@@ -144,12 +145,13 @@ function App() {
                     />
 
                     <SimpleGrid columns={3} spacing={4} minWidth={'xl'}>
-                        {alreadySavedPets.map(({ error, petName, downloaded, done }) => (
+                        {alreadySavedPets.map(({ error, petName, downloaded, done, bytes }) => (
                             <SavedPet
                                 error={error}
                                 petName={petName}
                                 downloaded={downloaded}
                                 done={done}
+                                bytes={bytes}
                             />
                         ))}
                     </SimpleGrid>
