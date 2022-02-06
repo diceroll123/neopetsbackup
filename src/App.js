@@ -3,77 +3,18 @@ import {
   Box,
   VStack,
   Grid,
-  Input,
-  Image,
-  Button,
-  HStack,
-  Container,
-  Progress,
-  Stack,
-  useColorModeValue,
   Divider,
-  SkeletonCircle,
   useToast,
-  Badge,
-  Link,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
 import * as zip from "@zip.js/zip.js";
+import About from './components/About';
+import EnterNeopetName from './components/EnterNeopetName';
+import SavedPet from './components/SavedPet';
+import { EMOTIONS, SIZES } from './utils/constants';
 
-const EMOTIONS = {
-  happy: 1,
-  sad: 2,
-  angry: 3,
-  sick: 4,
-  peeled: 5
-}
-
-const SIZES = {
-  icon: 1,
-  small: 2,
-  smallcropped: 3,
-  medium: 4,
-  large: 5,
-  face: 6,
-  largest: 7,
-  // there is no 8, weird isn't it
-  cropped: 9,
-}
-
-function About() {
-
-  const background = useColorModeValue("white", "gray.700");
-
-  return (
-    <Container
-      background={background}
-      borderColor={"gray.400"}
-      borderWidth='1px'
-      maxW='sm'
-      fontSize="md"
-      borderRadius='lg'
-      p={2}
-      boxShadow="lg">
-      <Stack spacing={2}>
-        <Box>
-          Howdy folks! 👋
-        </Box>
-        <Box>
-          We don't mean to alarm you, but to be quite honest: we're not entirely sure if Neopets is going to last forever, and we love our pets dearly.
-        </Box>
-        <Box fontSize='sm'>
-          For this reason, you can simply start entering some pets' names in and we'll get their images all downloaded for you!
-        </Box>
-        <Box fontSize="xs">
-          All of the work is done in your browser, we do not harvest any pet names you may enter!
-        </Box>
-      </Stack>
-    </Container>
-  )
-}
 
 function App() {
   const [petName, setPetName] = React.useState('');
@@ -187,101 +128,32 @@ function App() {
     setCanDownload(false);
   };
 
-  const green = useColorModeValue('green.300', 'green.500');
-
   return (
     <Box textAlign="center" fontSize="xl">
       <Grid p={3} >
         <ColorModeSwitcher justifySelf="flex-end" />
         <VStack spacing={8} divider={<Divider maxW='3xl' />}>
-          <HStack>
-            <Image
-              borderRadius='full'
-              boxSize='350px'
-              src='/alex.png'
-              title='Eggy Weggs!'
-            />
-            <About />
-          </HStack>
-          <HStack minWidth={'2xl'} spacing={4}>
-            <Image
-              src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
-              title={petName}
-              fallback={
-                <SkeletonCircle
-                  boxSize='70px'
-                />
-              }
-              borderRadius='full'
-              boxSize='70px'
-              onLoad={() => setCanDownload(true)}
-            />
-            <HStack>
-              <Input
-                minWidth={'md'}
-                borderColor={green}
-                value={petName}
-                onChange={handlePetNameChange}
-                placeholder="Enter a Neopet's name"
-                onKeyPress={(e) => e.key === 'Enter' && getSci(petName)}
-              />
-              <Button
-                disabled={!petName}
-                onClick={() => getSci(petName)}
-                bgColor={green}
-              >
-                Download
-              </Button>
-            </HStack>
-          </HStack>
+
+          <About />
+
+          <EnterNeopetName
+            petName={petName}
+            setCanDownload={setCanDownload}
+            handlePetNameChange={handlePetNameChange}
+            getSci={getSci}
+          />
+
           <SimpleGrid columns={3} spacing={4} minWidth={'xl'}>
             {alreadySavedPets.map(({ error, petName, downloaded, done }) => (
-              <Box as={HStack} key={petName} borderWidth='1px' borderRadius='lg' p={2} minW='230px'>
-                <Image
-                  src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
-                  title={petName}
-                  fallback={
-                    <SkeletonCircle
-                      boxSize='70px'
-                      startColor='red.300'
-                      endColor='red.300'
-                      mr={2}
-                    />
-                  }
-                  borderRadius='full'
-                  boxSize='70px'
-                  mr={2}
-                />
-                <VStack w='full' alignItems={'start'}>
-                  <Box textColor={error ? 'red.300' : null}>
-                    <Link href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`} isExternal>{petName} <ExternalLinkIcon /></Link>
-                  </Box>
-                  {error ?
-                    (
-                      <Badge colorScheme='red'>ERROR</Badge>
-                    ) :
-                    (
-                      <>
-                        {done ?
-                          (
-                            <Badge colorScheme='green'>SUCCESS</Badge>
-                          ) :
-                          (
-                            <Progress
-                              hasStripe
-                              isAnimated
-                              value={100 * (downloaded / (Object.keys(EMOTIONS).length * Object.keys(SIZES).length))}
-                              width='full'
-                              colorScheme={'blue'}
-                            />
-                          )
-                        }
-                      </>
-                    )}
-                </VStack>
-              </Box>
+              <SavedPet
+                error={error}
+                petName={petName}
+                downloaded={downloaded}
+                done={done}
+              />
             ))}
           </SimpleGrid>
+
         </VStack>
       </Grid>
     </Box>
