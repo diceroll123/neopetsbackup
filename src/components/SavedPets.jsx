@@ -35,8 +35,8 @@ const SavedPets = (props) => {
                             fallback={
                                 <SkeletonCircle
                                     boxSize='70px'
-                                    startColor={errorStartColor}
-                                    endColor={errorEndColor}
+                                    startColor={error ? errorStartColor: null}
+                                    endColor={error ? errorEndColor: null}
                                 />
                             }
                             borderRadius='full'
