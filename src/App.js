@@ -5,6 +5,8 @@ import {
     Grid,
     Divider,
     useToast,
+    Flex,
+    Spacer,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import axios from 'axios';
@@ -13,6 +15,7 @@ import About from './components/About';
 import EnterNeopetName from './components/EnterNeopetName';
 import SavedPets from './components/SavedPets';
 import { EMOTIONS, SIZES } from './utils/constants';
+import Footer from './components/Footer';
 
 
 function App() {
@@ -129,11 +132,24 @@ function App() {
     };
 
     return (
-        <Box textAlign="center" fontSize="xl">
-            <Grid p={3} >
+      <Flex
+        direction="column"
+        minHeight="100vh"
+      >
+          <Box 
+            textAlign="center" 
+            fontSize="xl"
+          >
+            <Grid 
+              p={3}
+              height={"calc(100vh-100px)"}
+            >
                 <ColorModeSwitcher justifySelf="flex-end" />
-                <VStack spacing={8} divider={<Divider maxW='3xl' />}>
-
+                <VStack 
+                  spacing={8}
+                  divider={<Divider maxW='3xl' />}
+                >
+                    
                     <About />
 
                     <EnterNeopetName
@@ -143,12 +159,13 @@ function App() {
                         getSci={getSci}
                     />
 
-
                     <SavedPets alreadySavedPets={alreadySavedPets} />
-
-                </VStack>
+                </VStack>        
             </Grid>
-        </Box>
+          </Box>
+          <Spacer />
+          <Footer />
+      </Flex>
     );
 }
 
