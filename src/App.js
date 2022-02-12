@@ -72,7 +72,7 @@ function App() {
             for (const [emo_name, emo_value] of Object.entries(EMOTIONS)) {
                 for (const [size_name, size_value] of Object.entries(SIZES)) {
                     promises.push(
-                        fetch(`http://localhost:8080/http://pets.neopets.com/cp/${sci}/${emo_value}/${size_value}.png`)
+                        fetch(`/api/pet-proxy/?sci=${sci}&emote=${emo_value}&size=${size_value}`)
                             .then(async (response) => {
                                 const path = `${size_name}/${emo_name}.png`;
                                 const blob = await response.blob();
@@ -111,8 +111,8 @@ function App() {
             // TODO: use fetch for this request + remove axios dependency
             addPetToState(petName, false);
             setPetName("");
-            const response = await axios.head(`http://localhost:8080/http://pets.neopets.com/cpn/${petName}/1/1.png`);
-            await makeZip(petName, response.headers['x-final-url'].split('/')[4]);
+            const response = await axios.head(`/api/pet-proxy/?name=${petName}`);
+            await makeZip(petName, response.headers['sci']);
 
         } catch (error) {
             toast({
