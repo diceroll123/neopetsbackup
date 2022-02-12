@@ -25,7 +25,7 @@ const links = [
 const Logo = () => {
     return (
         <Stack direction="row">
-            <Box as="img" src={null} height="1.5em" width="1.5em" />
+            <Box as="img" src='/logo.png' height="1.5em" width="1.5em" />
             <Heading
                 as="h1"
                 fontFamily="heading"
