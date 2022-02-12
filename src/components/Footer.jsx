@@ -31,7 +31,7 @@ const Logo = () => {
                 fontWeight="bold"
                 fontSize="xl"
             >
-                Save Neopets!
+                Save Your Neopets!
             </Heading>
         </Stack>
     );
