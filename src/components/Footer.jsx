@@ -1,7 +1,6 @@
 import { 
     Box, 
     ButtonGroup, 
-    Divider, 
     Heading, 
     Icon, 
     IconButton, 
@@ -41,7 +40,7 @@ const Logo = () => {
 const Copyright = (props) => {
     return (
         <Text fontSize="sm" {...props}>
-            Website, design, and code &copy; groupname.domain
+            Website, design, and code &copy; saveyourneopets.art
             <br />
             This is an unofficial Neopets fansite with no affiliation/endorsement with Neopets.
             <br /> Images/Names &copy; Neopets, Inc. All rights reserved. Used With Permission.
