@@ -9,6 +9,10 @@ export default async (req, res) => {
         if (name === undefined) {
             PET_IMG_URL = `http://pets.neopets.com/cp/${sci}/${emote || 1}/${size || 1}.png`;
             imageRequest = axios.get(PET_IMG_URL, { responseType: "arraybuffer" });
+
+            // only aggressively cache if this is a sci image
+            res.setHeader('Cache-Control', 's-maxage=43200');
+
         } else {
             PET_IMG_URL = `http://pets.neopets.com/cpn/${name}/${emote || 1}/${size || 1}.png`;
             imageRequest = axios.head(PET_IMG_URL);
@@ -16,7 +20,6 @@ export default async (req, res) => {
 
         const imageResponse = await imageRequest;
 
-        res.setHeader('Cache-Control', 's-maxage=43200');
         res.setHeader('content-type', imageResponse.headers['content-type']);
 
         // extra logic for head request for initial pet image
