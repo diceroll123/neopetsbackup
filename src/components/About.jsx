@@ -40,7 +40,7 @@ const About = () => {
                         For this reason, you can simply start entering some pets' names in and we'll get their images all downloaded for you!
                     </Box>
                     <Box fontSize="xs">
-                        All of the work is done in your browser, we do not harvest any pet names you may enter!
+                        We do not harvest any pet names you may enter!
                     </Box>
                 </Stack>
             </Container>
