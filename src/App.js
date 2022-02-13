@@ -127,6 +127,7 @@ function App() {
 
     const handlePetNameChange = (event) => {
         let name = event.target.value;
+        name = name.trim();
         setPetName(name);
         setCanDownload(false);
     };
