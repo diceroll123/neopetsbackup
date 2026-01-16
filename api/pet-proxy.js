@@ -5,7 +5,7 @@ export default async (req, res) => {
         const { name, sci, emote, size } = req.query;
         let PET_IMG_URL;
         let imageRequest;
-        
+
         const headers = {
             "Host": "pets.neopets.com",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0",
@@ -26,7 +26,7 @@ export default async (req, res) => {
 
         } else {
             PET_IMG_URL = `http://pets.neopets.com/cpn/${name}/${emote || 1}/${size || 1}.png`;
-            imageRequest = axios.head(PET_IMG_URL, { headers: headers });
+            imageRequest = axios.get(PET_IMG_URL, { headers: headers });
         }
 
         const imageResponse = await imageRequest;
