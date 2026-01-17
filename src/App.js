@@ -9,7 +9,6 @@ import {
     Spacer,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
-import axios from 'axios';
 import * as zip from "@zip.js/zip.js";
 import About from './components/About';
 import EnterNeopetName from './components/EnterNeopetName';
@@ -108,11 +107,10 @@ function App() {
     const getSci = async (petName) => {
         if (petName === "" || !canDownload) { return; }
         try {
-            // TODO: use fetch for this request + remove axios dependency
             addPetToState(petName, false);
             setPetName("");
-            const response = await axios.head(`/api/pet-proxy/?name=${petName}`);
-            await makeZip(petName, response.headers['sci']);
+            const response = await fetch(`/api/pet-proxy/?name=${petName}`, { method: 'HEAD' });
+            await makeZip(petName, response.headers.get('sci'));
 
         } catch (error) {
             toast({
@@ -137,20 +135,20 @@ function App() {
         direction="column"
         minHeight="100vh"
       >
-          <Box 
-            textAlign="center" 
+          <Box
+            textAlign="center"
             fontSize="xl"
           >
-            <Grid 
+            <Grid
               p={3}
               height={"calc(100vh-100px)"}
             >
                 <ColorModeSwitcher justifySelf="flex-end" />
-                <VStack 
+                <VStack
                   spacing={8}
                   divider={<Divider maxW='3xl' />}
                 >
-                    
+
                     <About />
 
                     <EnterNeopetName
@@ -161,7 +159,7 @@ function App() {
                     />
 
                     <SavedPets alreadySavedPets={alreadySavedPets} />
-                </VStack>        
+                </VStack>
             </Grid>
           </Box>
           <Spacer />
