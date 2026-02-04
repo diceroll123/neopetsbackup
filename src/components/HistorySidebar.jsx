@@ -249,7 +249,7 @@ const HistorySidebar = ({
                               transition="transform 0.2s"
                             >
                               <Image
-                                src={`https://pets.neopets.com/cpn/${selectedPet}/1/6.png`}
+                                src={`https://pets.neopets.com/cp/${entry.sci}/1/6.png`}
                                 fallback={
                                   <Skeleton boxSize="60px" borderRadius="lg" />
                                 }
