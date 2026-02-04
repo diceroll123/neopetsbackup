@@ -68,6 +68,7 @@ const HistorySidebar = ({
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const entryBgColor = useColorModeValue('white', 'gray.700');
   const hoverBgColor = useColorModeValue('gray.100', 'gray.700');
+  const helpTextColor = useColorModeValue('gray.600', 'gray.400');
 
   const handleDeleteClick = (petName, index) => {
     setDeleteTarget({ petName, index });
@@ -484,6 +485,10 @@ const HistorySidebar = ({
           <ModalHeader>Import History</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            <Text fontSize="sm" color={helpTextColor} mb={3}>
+              Imported data will be merged with your existing history. Duplicate
+              entries will be deduplicated. :)
+            </Text>
             <Textarea
               value={importData}
               onChange={e => setImportData(e.target.value)}
