@@ -266,7 +266,6 @@ const HistorySidebar = ({
                                     entry.t
                                   )}`}
                                   maxW="200px"
-                                  borderRadius="xl"
                                 />
                               </PopoverBody>
                             </PopoverContent>
