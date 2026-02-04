@@ -5,7 +5,7 @@ import {
   Button,
   HStack,
   useColorModeValue,
-  SkeletonCircle,
+  Skeleton,
 } from '@chakra-ui/react';
 
 const EnterNeopetName = props => {
@@ -19,8 +19,8 @@ const EnterNeopetName = props => {
       <Image
         src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
         title={petName}
-        fallback={<SkeletonCircle boxSize="70px" />}
-        borderRadius="full"
+        fallback={<Skeleton boxSize="70px" borderRadius="xl" />}
+        borderRadius="xl"
         boxSize="70px"
         onLoad={() => setCanDownload(true)}
       />

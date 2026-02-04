@@ -5,7 +5,7 @@ import {
   Image,
   HStack,
   Progress,
-  SkeletonCircle,
+  Skeleton,
   Badge,
   Icon,
   SimpleGrid,
@@ -38,13 +38,14 @@ const SavedPets = props => {
             <Image
               src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
               fallback={
-                <SkeletonCircle
+                <Skeleton
                   boxSize="70px"
+                  borderRadius="xl"
                   startColor={error ? errorStartColor : null}
                   endColor={error ? errorEndColor : null}
                 />
               }
-              borderRadius="full"
+              borderRadius="xl"
               boxSize="70px"
             />
             <VStack alignItems={'start'}>
