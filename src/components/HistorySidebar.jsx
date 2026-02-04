@@ -31,6 +31,8 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Grid,
+  Spacer,
 } from '@chakra-ui/react';
 import {
   FaTrash,
@@ -40,6 +42,8 @@ import {
   FaChevronRight,
   FaRedo,
   FaCopy,
+  FaImages,
+  FaInfoCircle,
 } from 'react-icons/fa';
 
 const HistorySidebar = ({
@@ -47,6 +51,7 @@ const HistorySidebar = ({
   onDeleteEntry,
   onImport,
   onRedownload,
+  onDownloadCurrent,
 }) => {
   const toast = useToast();
   const {
@@ -59,16 +64,59 @@ const HistorySidebar = ({
     onOpen: onDeleteOpen,
     onClose: onDeleteClose,
   } = useDisclosure();
+  const {
+    isOpen: isGalleryOpen,
+    onOpen: onGalleryOpen,
+    onClose: onGalleryClose,
+  } = useDisclosure();
   const [importData, setImportData] = React.useState('');
   const [selectedPet, setSelectedPet] = React.useState(null);
   const [deleteTarget, setDeleteTarget] = React.useState(null);
+  const [cooldowns, setCooldowns] = React.useState({});
   const cancelRef = React.useRef();
+  const galleryScrollRef = React.useRef();
+
+  // Update cooldown timers
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCooldowns(prev => {
+        const now = Date.now();
+        const updated = {};
+        Object.keys(prev).forEach(key => {
+          const remaining = prev[key] - now;
+          if (remaining > 0) {
+            updated[key] = prev[key];
+          }
+        });
+        return updated;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getCooldownRemaining = key => {
+    const cooldownEnd = cooldowns[key];
+    if (!cooldownEnd) return 0;
+    const remaining = Math.ceil((cooldownEnd - Date.now()) / 1000);
+    return Math.max(0, remaining);
+  };
+
+  const setCooldown = (key, seconds = 10) => {
+    setCooldowns(prev => ({
+      ...prev,
+      [key]: Date.now() + seconds * 1000,
+    }));
+  };
 
   const bgColor = useColorModeValue('gray.50', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const entryBgColor = useColorModeValue('white', 'gray.700');
   const hoverBgColor = useColorModeValue('gray.100', 'gray.700');
   const helpTextColor = useColorModeValue('gray.600', 'gray.400');
+  const galleryBgColor = useColorModeValue('gray.100', 'gray.900');
+  const currentPetBorderColor = useColorModeValue('green.400', 'green.500');
+  const currentPetTextColor = useColorModeValue('green.600', 'green.400');
 
   const handleDeleteClick = (petName, index) => {
     setDeleteTarget({ petName, index });
@@ -149,8 +197,113 @@ const HistorySidebar = ({
     setSelectedPet(null);
   };
 
+  const handleOpenGallery = () => {
+    onGalleryOpen();
+  };
+
+  // Lazy loading image component
+  const LazyImage = ({ entry, index, scrollContainerRef }) => {
+    const [isLoaded, setIsLoaded] = React.useState(false);
+    const [shouldLoad, setShouldLoad] = React.useState(false);
+    const imgRef = React.useRef();
+
+    React.useEffect(() => {
+      const currentRef = imgRef.current;
+      if (!currentRef) return;
+
+      const observer = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        },
+        {
+          root: scrollContainerRef?.current || null,
+          rootMargin: '100px',
+        }
+      );
+
+      observer.observe(currentRef);
+
+      return () => {
+        if (currentRef) {
+          observer.unobserve(currentRef);
+        }
+      };
+    }, [scrollContainerRef]);
+
+    return (
+      <Box
+        ref={imgRef}
+        position="relative"
+        borderRadius="md"
+        overflow="hidden"
+        boxShadow="sm"
+        cursor="pointer"
+        _hover={{
+          transform: 'scale(1.05)',
+          boxShadow: 'lg',
+          zIndex: 1,
+          transition: 'all 0.2s',
+        }}
+        transition="all 0.2s"
+        bg={galleryBgColor}
+        minH="200px"
+      >
+        {shouldLoad ? (
+          <>
+            {!isLoaded && (
+              <Skeleton
+                position="absolute"
+                top={0}
+                left={0}
+                width="100%"
+                height="100%"
+                minH="200px"
+              />
+            )}
+            <Image
+              src={`https://pets.neopets.com/cp/${entry.sci}/1/4.png`}
+              alt={`${selectedPet} - ${formatDate(entry.t)}`}
+              width="100%"
+              height="auto"
+              objectFit="contain"
+              onLoad={() => setIsLoaded(true)}
+              style={{ display: isLoaded ? 'block' : 'none' }}
+            />
+            <Box
+              position="absolute"
+              bottom={0}
+              left={0}
+              right={0}
+              bg="blackAlpha.800"
+              color="white"
+              p={1.5}
+              fontSize="xs"
+            >
+              {formatDate(entry.t)}
+            </Box>
+          </>
+        ) : (
+          <Skeleton width="100%" minH="200px" />
+        )}
+      </Box>
+    );
+  };
+
   const handleRedownload = (petName, sci) => {
+    const key = `redownload-${petName}-${sci}`;
+    if (getCooldownRemaining(key) > 0) return;
+    setCooldown(key);
     onRedownload(petName, sci);
+  };
+
+  const handleDownloadCurrent = petName => {
+    const key = `download-current-${petName}`;
+    if (getCooldownRemaining(key) > 0) return;
+    setCooldown(key);
+    onDownloadCurrent(petName);
   };
 
   const handleCopyImageUrl = async sci => {
@@ -212,6 +365,83 @@ const HistorySidebar = ({
                 </Text>
               </HStack>
               <Divider />
+              {/* Current Pet View */}
+              <Box
+                borderWidth="2px"
+                borderColor={currentPetBorderColor}
+                borderRadius="lg"
+                p={4}
+                bg={entryBgColor}
+                boxShadow="md"
+              >
+                <VStack spacing={3} align="stretch">
+                  <HStack spacing={2}>
+                    <Text
+                      fontSize="sm"
+                      fontWeight="bold"
+                      color={currentPetTextColor}
+                    >
+                      Current Appearance
+                    </Text>
+                    <Spacer />
+                    <Popover trigger="hover" placement="top">
+                      <PopoverTrigger>
+                        <IconButton
+                          icon={<FaInfoCircle />}
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="gray"
+                          aria-label="Info"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent width="auto" maxW="250px">
+                        <PopoverBody fontSize="sm" p={3}>
+                          Due to limitations, we can't know if the current
+                          appearance has already been downloaded.
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </HStack>
+                  <Box overflow="hidden" boxShadow="md" alignSelf="center">
+                    <Image
+                      src={`https://pets.neopets.com/cpn/${selectedPet}/1/4.png`}
+                      alt={`${selectedPet} current appearance`}
+                      maxW="200px"
+                      fallback={<Skeleton height="200px" width="200px" />}
+                    />
+                  </Box>
+                  <Button
+                    colorScheme="green"
+                    size="md"
+                    leftIcon={<FaDownload />}
+                    onClick={() => handleDownloadCurrent(selectedPet)}
+                    fontWeight="bold"
+                    isDisabled={
+                      getCooldownRemaining(`download-current-${selectedPet}`) >
+                      0
+                    }
+                  >
+                    Download
+                  </Button>
+                </VStack>
+              </Box>
+              <Divider />
+              <HStack justify="space-between" px={2}>
+                <Text fontSize="sm" fontWeight="bold" color="gray.500">
+                  Previous Downloads
+                </Text>
+                {selectedPetEntries.length > 0 && (
+                  <Button
+                    size="xs"
+                    leftIcon={<FaImages />}
+                    onClick={handleOpenGallery}
+                    colorScheme="purple"
+                    variant="outline"
+                  >
+                    Gallery
+                  </Button>
+                )}
+              </HStack>
               {selectedPetEntries.length === 0 ? (
                 <Text fontSize="sm" color="gray.500" textAlign="center" py={4}>
                   No entries for this pet
@@ -299,6 +529,11 @@ const HistorySidebar = ({
                               borderRadius="md"
                               fontWeight="medium"
                               flexShrink={0}
+                              isDisabled={
+                                getCooldownRemaining(
+                                  `redownload-${selectedPet}-${entry.sci}`
+                                ) > 0
+                              }
                             >
                               Redownload
                             </Button>
@@ -505,6 +740,51 @@ const HistorySidebar = ({
               Cancel
             </Button>
           </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Gallery Modal */}
+      <Modal
+        isOpen={isGalleryOpen}
+        onClose={onGalleryClose}
+        size="6xl"
+        isCentered
+        scrollBehavior="inside"
+      >
+        <ModalOverlay />
+        <ModalContent
+          maxW="95vw"
+          maxH="85vh"
+          display="flex"
+          flexDirection="column"
+        >
+          <ModalHeader flexShrink={0}>
+            {selectedPet} - Gallery ({selectedPetEntries.length} entries)
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY="auto" pb={4} flex={1} ref={galleryScrollRef}>
+            {selectedPetEntries.length > 0 && (
+              <Grid
+                templateColumns={{
+                  base: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)',
+                  xl: 'repeat(5, 1fr)',
+                }}
+                gap={3}
+              >
+                {selectedPetEntries.map((entry, index) => (
+                  <LazyImage
+                    key={`${entry.t}-${entry.sci}`}
+                    entry={entry}
+                    index={index}
+                    scrollContainerRef={galleryScrollRef}
+                  />
+                ))}
+              </Grid>
+            )}
+          </ModalBody>
         </ModalContent>
       </Modal>
 
