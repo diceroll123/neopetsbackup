@@ -164,6 +164,13 @@ function App() {
     });
   };
 
+  const processBatch = async (tasks, batchSize) => {
+    for (let i = 0; i < tasks.length; i += batchSize) {
+      const batch = tasks.slice(i, i + batchSize);
+      await Promise.all(batch);
+    }
+  };
+
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter('application/zip'));
 
@@ -185,7 +192,7 @@ function App() {
           );
         }
       }
-      await Promise.all(promises); // Grab 'em all!
+      await processBatch(promises, 9);
     } catch (e) {
       error = e;
       toast({
