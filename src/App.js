@@ -148,11 +148,11 @@ function App() {
         const normalizedName = petName.toLowerCase();
         const importedEntries = importedData[petName] || [];
         const existingEntries = merged[normalizedName] || [];
-        // Combine and deduplicate by SCI value, keeping most recent timestamp
+        // Combine and deduplicate by SCI value, keeping oldest timestamp
         const entryMap = new Map();
         [...existingEntries, ...importedEntries].forEach(entry => {
           const existing = entryMap.get(entry.sci);
-          if (!existing || entry.t > existing.t) {
+          if (!existing || entry.t < existing.t) {
             entryMap.set(entry.sci, entry);
           }
         });
