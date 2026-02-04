@@ -78,6 +78,11 @@ const LazyImage = React.memo(
       };
     }, [scrollContainerRef]);
 
+    const handleImageClick = () => {
+      const imageUrl = `https://pets.neopets.com/cp/${entry.sci}/1/7.png`;
+      window.open(imageUrl, '_blank');
+    };
+
     return (
       <Box
         ref={imgRef}
@@ -86,6 +91,7 @@ const LazyImage = React.memo(
         overflow="hidden"
         boxShadow="sm"
         cursor="pointer"
+        onClick={handleImageClick}
         _hover={{
           transform: 'scale(1.05)',
           boxShadow: 'lg',
