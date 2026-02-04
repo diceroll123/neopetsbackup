@@ -7,7 +7,10 @@ import {
   useToast,
   Flex,
   Spacer,
+  IconButton,
+  useBreakpointValue,
 } from '@chakra-ui/react';
+import { FaBars } from 'react-icons/fa';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import * as zip from '@zip.js/zip.js';
 import About from './components/About';
@@ -24,7 +27,9 @@ function App() {
   const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
   const [canDownload, setCanDownload] = React.useState(false);
   const [sciHistory, setSciHistory] = React.useState({});
+  const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
   const toast = useToast();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   // Load SCI history from localStorage on mount
   React.useEffect(() => {
@@ -140,28 +145,33 @@ function App() {
     });
   };
 
-  const importSCIHistory = importedData => {
-    // Merge imported data with existing, prioritizing imported data
-    setSciHistory(prev => {
-      const merged = { ...prev };
-      Object.keys(importedData).forEach(petName => {
-        const normalizedName = petName.toLowerCase();
-        const importedEntries = importedData[petName] || [];
-        const existingEntries = merged[normalizedName] || [];
-        // Combine and deduplicate by SCI value, keeping oldest timestamp
-        const entryMap = new Map();
-        [...existingEntries, ...importedEntries].forEach(entry => {
-          const existing = entryMap.get(entry.sci);
-          if (!existing || entry.t < existing.t) {
-            entryMap.set(entry.sci, entry);
-          }
+  const importSCIHistory = (importedData, overwrite = false) => {
+    if (overwrite) {
+      // Overwrite entire history with imported data
+      setSciHistory(importedData);
+    } else {
+      // Merge imported data with existing, prioritizing imported data
+      setSciHistory(prev => {
+        const merged = { ...prev };
+        Object.keys(importedData).forEach(petName => {
+          const normalizedName = petName.toLowerCase();
+          const importedEntries = importedData[petName] || [];
+          const existingEntries = merged[normalizedName] || [];
+          // Combine and deduplicate by SCI value, keeping oldest timestamp
+          const entryMap = new Map();
+          [...existingEntries, ...importedEntries].forEach(entry => {
+            const existing = entryMap.get(entry.sci);
+            if (!existing || entry.t < existing.t) {
+              entryMap.set(entry.sci, entry);
+            }
+          });
+          merged[normalizedName] = Array.from(entryMap.values()).sort(
+            (a, b) => b.t - a.t
+          );
         });
-        merged[normalizedName] = Array.from(entryMap.values()).sort(
-          (a, b) => b.t - a.t
-        );
+        return merged;
       });
-      return merged;
-    });
+    }
   };
 
   const processBatch = async (tasks, batchSize) => {
@@ -293,11 +303,23 @@ function App() {
             await redownloadPet(petName, sci);
           }
         }}
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
       />
-      <Flex direction="column" flex={1} ml="300px">
+      <Flex direction="column" flex={1} ml={{ base: 0, md: '300px' }}>
         <Box textAlign="center" fontSize="xl">
           <Grid p={3} height={'calc(100vh-100px)'}>
-            <ColorModeSwitcher justifySelf="flex-end" />
+            <Flex justify="space-between" width="100%">
+              {isMobile && (
+                <IconButton
+                  icon={<FaBars />}
+                  aria-label="Open history"
+                  onClick={() => setIsHistoryOpen(true)}
+                  variant="ghost"
+                />
+              )}
+              <ColorModeSwitcher justifySelf="flex-end" />
+            </Flex>
             <VStack spacing={8} divider={<Divider maxW="3xl" />}>
               <About />
 
