@@ -9,19 +9,43 @@ import {
   Spacer,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
-import axios from 'axios';
 import * as zip from '@zip.js/zip.js';
 import About from './components/About';
 import EnterNeopetName from './components/EnterNeopetName';
 import SavedPets from './components/SavedPets';
+import HistorySidebar from './components/HistorySidebar';
 import { EMOTIONS, SIZES } from './utils/constants';
 import Footer from './components/Footer';
+
+const STORAGE_KEY = 'neopets-sci-history';
 
 function App() {
   const [petName, setPetName] = React.useState('');
   const [alreadySavedPets, setAlreadySavedPets] = React.useState([]);
   const [canDownload, setCanDownload] = React.useState(false);
+  const [sciHistory, setSciHistory] = React.useState({});
   const toast = useToast();
+
+  // Load SCI history from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setSciHistory(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.error('Failed to load history from localStorage:', e);
+    }
+  }, []);
+
+  // Save SCI history to localStorage whenever it changes
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sciHistory));
+    } catch (e) {
+      console.error('Failed to save history to localStorage:', e);
+    }
+  }, [sciHistory]);
 
   const addPetToState = (petName, error) => {
     setAlreadySavedPets(existingArray => {
@@ -82,6 +106,64 @@ function App() {
     });
   };
 
+  const addSCIEntry = (petName, sci) => {
+    const normalizedName = petName.toLowerCase();
+    setSciHistory(prev => {
+      const petEntries = prev[normalizedName] || [];
+      // Check if this exact SCI already exists for this pet
+      const exists = petEntries.some(entry => entry.sci === sci);
+      if (exists) {
+        return prev; // Don't add duplicate, but still return prev to trigger save
+      }
+      // Add new entry at the beginning (most recent first)
+      const newEntry = { t: Date.now(), sci };
+      return {
+        ...prev,
+        [normalizedName]: [newEntry, ...petEntries],
+      };
+    });
+  };
+
+  const deleteSCIEntry = (petName, index) => {
+    const normalizedName = petName.toLowerCase();
+    setSciHistory(prev => {
+      const petEntries = prev[normalizedName] || [];
+      const newEntries = petEntries.filter((_, i) => i !== index);
+      if (newEntries.length === 0) {
+        const { [normalizedName]: removed, ...rest } = prev;
+        return rest;
+      }
+      return {
+        ...prev,
+        [normalizedName]: newEntries,
+      };
+    });
+  };
+
+  const importSCIHistory = importedData => {
+    // Merge imported data with existing, prioritizing imported data
+    setSciHistory(prev => {
+      const merged = { ...prev };
+      Object.keys(importedData).forEach(petName => {
+        const normalizedName = petName.toLowerCase();
+        const importedEntries = importedData[petName] || [];
+        const existingEntries = merged[normalizedName] || [];
+        // Combine and deduplicate by SCI value, keeping most recent timestamp
+        const entryMap = new Map();
+        [...existingEntries, ...importedEntries].forEach(entry => {
+          const existing = entryMap.get(entry.sci);
+          if (!existing || entry.t > existing.t) {
+            entryMap.set(entry.sci, entry);
+          }
+        });
+        merged[normalizedName] = Array.from(entryMap.values()).sort(
+          (a, b) => b.t - a.t
+        );
+      });
+      return merged;
+    });
+  };
+
   const makeZip = async (name, sci) => {
     let zipWriter = new zip.ZipWriter(new zip.BlobWriter('application/zip'));
 
@@ -128,6 +210,26 @@ function App() {
       done: true,
       bytes: zipWriter?.writer?.size || 0,
     });
+
+    // Add SCI entry if download was successful
+    if (!error) {
+      addSCIEntry(name, sci);
+    }
+  };
+
+  const redownloadPet = async (petName, sci) => {
+    try {
+      addPetToState(petName, false);
+      await makeZip(petName, sci);
+    } catch (error) {
+      toast({
+        id: 'redownloadPet',
+        status: 'error',
+        title: `Error redownloading ${petName}'s images`,
+        isClosable: true,
+      });
+      updatePetInState(petName, { error: true });
+    }
   };
 
   const getSci = async petName => {
@@ -135,11 +237,12 @@ function App() {
       return;
     }
     try {
-      // TODO: use fetch for this request + remove axios dependency
       addPetToState(petName, false);
       setPetName('');
-      const response = await axios.head(`/api/pet-proxy/?name=${petName}`);
-      await makeZip(petName, response.headers['sci']);
+      const response = await fetch(`/api/pet-proxy/?name=${petName}`, {
+        method: 'HEAD',
+      });
+      await makeZip(petName, response.headers.get('sci'));
     } catch (error) {
       toast({
         id: 'getSci',
@@ -159,26 +262,34 @@ function App() {
   };
 
   return (
-    <Flex direction="column" minHeight="100vh">
-      <Box textAlign="center" fontSize="xl">
-        <Grid p={3} height={'calc(100vh-100px)'}>
-          <ColorModeSwitcher justifySelf="flex-end" />
-          <VStack spacing={8} divider={<Divider maxW="3xl" />}>
-            <About />
+    <Flex direction="row" minHeight="100vh">
+      <HistorySidebar
+        sciHistory={sciHistory}
+        onDeleteEntry={deleteSCIEntry}
+        onImport={importSCIHistory}
+        onRedownload={redownloadPet}
+      />
+      <Flex direction="column" flex={1} ml="300px">
+        <Box textAlign="center" fontSize="xl">
+          <Grid p={3} height={'calc(100vh-100px)'}>
+            <ColorModeSwitcher justifySelf="flex-end" />
+            <VStack spacing={8} divider={<Divider maxW="3xl" />}>
+              <About />
 
-            <EnterNeopetName
-              petName={petName}
-              setCanDownload={setCanDownload}
-              handlePetNameChange={handlePetNameChange}
-              getSci={getSci}
-            />
+              <EnterNeopetName
+                petName={petName}
+                setCanDownload={setCanDownload}
+                handlePetNameChange={handlePetNameChange}
+                getSci={getSci}
+              />
 
-            <SavedPets alreadySavedPets={alreadySavedPets} />
-          </VStack>
-        </Grid>
-      </Box>
-      <Spacer />
-      <Footer />
+              <SavedPets alreadySavedPets={alreadySavedPets} />
+            </VStack>
+          </Grid>
+        </Box>
+        <Spacer />
+        <Footer />
+      </Flex>
     </Flex>
   );
 }
