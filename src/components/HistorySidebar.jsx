@@ -394,12 +394,14 @@ const HistorySidebar = ({
                           aria-label="Info"
                         />
                       </PopoverTrigger>
-                      <PopoverContent width="auto" maxW="250px">
-                        <PopoverBody fontSize="sm" p={3}>
-                          Due to limitations, we can't know if the current
-                          appearance has already been downloaded.
-                        </PopoverBody>
-                      </PopoverContent>
+                      <Portal>
+                        <PopoverContent width="auto" maxW="250px">
+                          <PopoverBody fontSize="sm" p={3}>
+                            Due to limitations, we can't know if the current
+                            appearance has already been downloaded.
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Portal>
                     </Popover>
                   </HStack>
                   <Box overflow="hidden" boxShadow="md" alignSelf="center">
