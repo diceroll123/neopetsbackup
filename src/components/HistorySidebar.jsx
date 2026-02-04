@@ -46,6 +46,100 @@ import {
   FaInfoCircle,
 } from 'react-icons/fa';
 
+const LazyImage = React.memo(
+  ({ entry, selectedPet, formatDate, scrollContainerRef, galleryBgColor }) => {
+    const [isLoaded, setIsLoaded] = React.useState(false);
+    const [shouldLoad, setShouldLoad] = React.useState(false);
+    const imgRef = React.useRef();
+
+    React.useEffect(() => {
+      const currentRef = imgRef.current;
+      if (!currentRef) return;
+
+      const scrollContainer = scrollContainerRef?.current || null;
+
+      const observer = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        },
+        {
+          root: scrollContainer,
+          rootMargin: '100px',
+        }
+      );
+
+      observer.observe(currentRef);
+
+      return () => {
+        observer.disconnect();
+      };
+    }, [scrollContainerRef]);
+
+    return (
+      <Box
+        ref={imgRef}
+        position="relative"
+        borderRadius="md"
+        overflow="hidden"
+        boxShadow="sm"
+        cursor="pointer"
+        _hover={{
+          transform: 'scale(1.05)',
+          boxShadow: 'lg',
+          zIndex: 1,
+          transition: 'all 0.2s',
+        }}
+        transition="all 0.2s"
+        bg={galleryBgColor}
+        minH="200px"
+      >
+        {shouldLoad ? (
+          <>
+            {!isLoaded && (
+              <Skeleton
+                position="absolute"
+                top={0}
+                left={0}
+                width="100%"
+                height="100%"
+                minH="200px"
+              />
+            )}
+            <Image
+              src={`https://pets.neopets.com/cp/${entry.sci}/1/4.png`}
+              alt={`${selectedPet} - ${formatDate(entry.t)}`}
+              width="100%"
+              height="auto"
+              objectFit="contain"
+              onLoad={() => setIsLoaded(true)}
+              style={{ display: isLoaded ? 'block' : 'none' }}
+            />
+            <Box
+              position="absolute"
+              bottom={0}
+              left={0}
+              right={0}
+              bg="blackAlpha.800"
+              color="white"
+              p={1.5}
+              fontSize="xs"
+            >
+              {formatDate(entry.t)}
+            </Box>
+          </>
+        ) : (
+          <Skeleton width="100%" minH="200px" />
+        )}
+      </Box>
+    );
+  }
+);
+
+LazyImage.displayName = 'LazyImage';
+
 const HistorySidebar = ({
   sciHistory,
   onDeleteEntry,
@@ -179,15 +273,15 @@ const HistorySidebar = ({
     }
   };
 
-  const formatDate = timestamp => {
+  const formatDate = React.useCallback(timestamp => {
     const date = new Date(timestamp);
     return date.toLocaleString();
-  };
+  }, []);
 
-  const formatShortDate = timestamp => {
+  const formatShortDate = React.useCallback(timestamp => {
     const date = new Date(timestamp);
     return date.toLocaleDateString();
-  };
+  }, []);
 
   const handlePetClick = petName => {
     setSelectedPet(petName);
@@ -199,97 +293,6 @@ const HistorySidebar = ({
 
   const handleOpenGallery = () => {
     onGalleryOpen();
-  };
-
-  // Lazy loading image component
-  const LazyImage = ({ entry, index, scrollContainerRef }) => {
-    const [isLoaded, setIsLoaded] = React.useState(false);
-    const [shouldLoad, setShouldLoad] = React.useState(false);
-    const imgRef = React.useRef();
-
-    React.useEffect(() => {
-      const currentRef = imgRef.current;
-      if (!currentRef) return;
-
-      const observer = new IntersectionObserver(
-        entries => {
-          if (entries[0].isIntersecting) {
-            setShouldLoad(true);
-            observer.disconnect();
-          }
-        },
-        {
-          root: scrollContainerRef?.current || null,
-          rootMargin: '100px',
-        }
-      );
-
-      observer.observe(currentRef);
-
-      return () => {
-        if (currentRef) {
-          observer.unobserve(currentRef);
-        }
-      };
-    }, [scrollContainerRef]);
-
-    return (
-      <Box
-        ref={imgRef}
-        position="relative"
-        borderRadius="md"
-        overflow="hidden"
-        boxShadow="sm"
-        cursor="pointer"
-        _hover={{
-          transform: 'scale(1.05)',
-          boxShadow: 'lg',
-          zIndex: 1,
-          transition: 'all 0.2s',
-        }}
-        transition="all 0.2s"
-        bg={galleryBgColor}
-        minH="200px"
-      >
-        {shouldLoad ? (
-          <>
-            {!isLoaded && (
-              <Skeleton
-                position="absolute"
-                top={0}
-                left={0}
-                width="100%"
-                height="100%"
-                minH="200px"
-              />
-            )}
-            <Image
-              src={`https://pets.neopets.com/cp/${entry.sci}/1/4.png`}
-              alt={`${selectedPet} - ${formatDate(entry.t)}`}
-              width="100%"
-              height="auto"
-              objectFit="contain"
-              onLoad={() => setIsLoaded(true)}
-              style={{ display: isLoaded ? 'block' : 'none' }}
-            />
-            <Box
-              position="absolute"
-              bottom={0}
-              left={0}
-              right={0}
-              bg="blackAlpha.800"
-              color="white"
-              p={1.5}
-              fontSize="xs"
-            >
-              {formatDate(entry.t)}
-            </Box>
-          </>
-        ) : (
-          <Skeleton width="100%" minH="200px" />
-        )}
-      </Box>
-    );
   };
 
   const handleRedownload = (petName, sci) => {
@@ -780,8 +783,10 @@ const HistorySidebar = ({
                   <LazyImage
                     key={`${entry.t}-${entry.sci}`}
                     entry={entry}
-                    index={index}
+                    selectedPet={selectedPet}
+                    formatDate={formatDate}
                     scrollContainerRef={galleryScrollRef}
+                    galleryBgColor={galleryBgColor}
                   />
                 ))}
               </Grid>
