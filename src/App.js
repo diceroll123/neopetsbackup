@@ -232,6 +232,18 @@ function App() {
     }
   };
 
+  const getCurrentSci = async petName => {
+    try {
+      const response = await fetch(`/api/pet-proxy/?name=${petName}`, {
+        method: 'HEAD',
+      });
+      return response.headers.get('sci');
+    } catch (error) {
+      console.error(`Error fetching current SCI for ${petName}:`, error);
+      return null;
+    }
+  };
+
   const getSci = async petName => {
     if (petName === '' || !canDownload) {
       return;
@@ -268,6 +280,12 @@ function App() {
         onDeleteEntry={deleteSCIEntry}
         onImport={importSCIHistory}
         onRedownload={redownloadPet}
+        onDownloadCurrent={async petName => {
+          const sci = await getCurrentSci(petName);
+          if (sci) {
+            await redownloadPet(petName, sci);
+          }
+        }}
       />
       <Flex direction="column" flex={1} ml="300px">
         <Box textAlign="center" fontSize="xl">
