@@ -154,6 +154,40 @@ const LazyImage = React.memo(
 
 LazyImage.displayName = 'LazyImage';
 
+const HoverableCard = ({
+  children,
+  onClick,
+  borderRadius = 'md',
+  p = 3,
+  boxShadow,
+  ...props
+}) => {
+  const entryBgColor = useColorModeValue('white', 'gray.700');
+  const hoverBgColor = useColorModeValue('gray.50', '#4A5568');
+
+  return (
+    <Box
+      borderWidth="1px"
+      borderRadius={borderRadius}
+      p={p}
+      bg={entryBgColor}
+      boxShadow={boxShadow}
+      cursor={onClick ? 'pointer' : 'default'}
+      _hover={{
+        bg: hoverBgColor,
+        boxShadow: boxShadow || 'md',
+        transform: 'translateY(-1px)',
+        transition: 'all 0.2s',
+      }}
+      transition="all 0.2s"
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </Box>
+  );
+};
+
 const HistorySidebar = ({
   sciHistory,
   onDeleteEntry,
@@ -229,7 +263,6 @@ const HistorySidebar = ({
   const bgColor = useColorModeValue('gray.50', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const entryBgColor = useColorModeValue('white', 'gray.700');
-  const hoverBgColor = useColorModeValue('gray.100', 'gray.700');
   const helpTextColor = useColorModeValue('gray.600', 'gray.400');
   const galleryBgColor = useColorModeValue('gray.100', 'gray.900');
   const currentPetBorderColor = useColorModeValue('green.400', 'green.500');
@@ -369,7 +402,7 @@ const HistorySidebar = ({
   });
 
   const selectedPetEntries = selectedPet ? sciHistory[selectedPet] || [] : [];
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const isMobile = useBreakpointValue({ base: true, xl: false });
 
   const sidebarContent = (
     <VStack spacing={4} align="stretch">
@@ -473,19 +506,10 @@ const HistorySidebar = ({
           ) : (
             <VStack spacing={3} align="stretch">
               {selectedPetEntries.map((entry, index) => (
-                <Box
+                <HoverableCard
                   key={`${entry.t}-${entry.sci}`}
-                  borderWidth="1px"
                   borderRadius="lg"
-                  p={3}
-                  bg={entryBgColor}
                   boxShadow="sm"
-                  _hover={{
-                    boxShadow: 'md',
-                    transform: 'translateY(-1px)',
-                    transition: 'all 0.2s',
-                  }}
-                  transition="all 0.2s"
                 >
                   <HStack spacing={3} align="start">
                     <Popover trigger="hover" placement="right">
@@ -604,7 +628,7 @@ const HistorySidebar = ({
                       </HStack>
                     </VStack>
                   </HStack>
-                </Box>
+                </HoverableCard>
               ))}
             </VStack>
           )}
@@ -664,19 +688,14 @@ const HistorySidebar = ({
               const latestEntry = entries[0];
 
               return (
-                <Box
+                <HoverableCard
                   key={petName}
-                  borderWidth="1px"
                   borderRadius="md"
                   overflow="hidden"
+                  p={0}
+                  onClick={() => handlePetClick(petName)}
                 >
-                  <Box
-                    p={3}
-                    bg={entryBgColor}
-                    cursor="pointer"
-                    _hover={{ bg: hoverBgColor }}
-                    onClick={() => handlePetClick(petName)}
-                  >
+                  <Box p={3}>
                     <HStack spacing={3}>
                       <Popover trigger="hover" placement="right">
                         <PopoverTrigger>
@@ -725,7 +744,7 @@ const HistorySidebar = ({
                       <FaChevronRight color="gray.400" />
                     </HStack>
                   </Box>
-                </Box>
+                </HoverableCard>
               );
             })
           )}
