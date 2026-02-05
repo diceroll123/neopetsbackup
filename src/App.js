@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Box,
   VStack,
-  Grid,
   Divider,
   useToast,
   Flex,
@@ -29,7 +28,7 @@ function App() {
   const [sciHistory, setSciHistory] = React.useState({});
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
   const toast = useToast();
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   // Load SCI history from localStorage on mount
   React.useEffect(() => {
@@ -306,21 +305,35 @@ function App() {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
       />
-      <Flex direction="column" flex={1} ml={{ base: 0, md: '300px' }}>
-        <Box textAlign="center" fontSize="xl">
-          <Grid p={3} height={'calc(100vh-100px)'}>
-            <Flex justify="space-between" width="100%">
-              {isMobile && (
+      <Flex direction="column" flex={1} ml={{ base: 0, lg: '300px' }}>
+        <Box textAlign="center" fontSize="xl" width="100%">
+          <Flex
+            direction="column"
+            p={{ base: 2, lg: 3 }}
+            minHeight={'calc(100vh-100px)'}
+            align="center"
+          >
+            <Flex justify="space-between" width="100%" mb={4} maxW="6xl">
+              {isMobile ? (
                 <IconButton
                   icon={<FaBars />}
                   aria-label="Open history"
                   onClick={() => setIsHistoryOpen(true)}
                   variant="ghost"
                 />
+              ) : (
+                <Box />
               )}
-              <ColorModeSwitcher justifySelf="flex-end" />
+              <ColorModeSwitcher />
             </Flex>
-            <VStack spacing={8} divider={<Divider maxW="3xl" />}>
+            <VStack
+              spacing={8}
+              divider={<Divider maxW={{ base: '100%', lg: '3xl' }} />}
+              width="100%"
+              maxW="6xl"
+              align="center"
+              px={{ base: 2, lg: 0 }}
+            >
               <About />
 
               <EnterNeopetName
@@ -332,7 +345,7 @@ function App() {
 
               <SavedPets alreadySavedPets={alreadySavedPets} />
             </VStack>
-          </Grid>
+          </Flex>
         </Box>
         <Spacer />
         <Footer />

@@ -25,7 +25,12 @@ const SavedPets = props => {
   const errorEndColor = useColorModeValue('red.400', 'red.600');
 
   return (
-    <SimpleGrid columns={3} spacing={3} minWidth={'xl'}>
+    <SimpleGrid
+      columns={{ base: 1, sm: 2, md: 3 }}
+      spacing={3}
+      width="100%"
+      maxW={{ base: '100%', md: 'xl' }}
+    >
       {alreadySavedPets.map(({ error, petName, downloaded, done, bytes }) => (
         <LinkBox key={petName} title={petName}>
           <Box
@@ -33,7 +38,7 @@ const SavedPets = props => {
             borderWidth="1px"
             borderRadius="lg"
             p={2}
-            minW="230px"
+            minW={{ base: '100%', md: '230px' }}
           >
             <Image
               src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}

@@ -15,32 +15,35 @@ const EnterNeopetName = props => {
   const green = useColorModeValue('green.300', 'green.500');
 
   return (
-    <HStack minWidth={'2xl'} spacing={4}>
+    <HStack spacing={4} justify="center">
       <Image
         src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
         title={petName}
-        fallback={<Skeleton boxSize="70px" borderRadius="xl" />}
+        fallback={
+          <Skeleton w="70px" h="70px" borderRadius="xl" flexShrink={0} />
+        }
         borderRadius="xl"
-        boxSize="70px"
+        w="70px"
+        h="70px"
+        flexShrink={0}
         onLoad={() => setCanDownload(true)}
       />
-      <HStack>
-        <Input
-          minWidth={'md'}
-          borderColor={green}
-          value={petName}
-          onChange={handlePetNameChange}
-          placeholder="Enter a Neopet's name"
-          onKeyPress={e => e.key === 'Enter' && getSci(petName)}
-        />
-        <Button
-          disabled={!petName}
-          onClick={() => getSci(petName)}
-          bgColor={green}
-        >
-          Download
-        </Button>
-      </HStack>
+      <Input
+        width={{ base: '200px', md: '400px', lg: '500px' }}
+        borderColor={green}
+        value={petName}
+        onChange={handlePetNameChange}
+        placeholder="Enter a Neopet's name"
+        onKeyPress={e => e.key === 'Enter' && getSci(petName)}
+      />
+      <Button
+        disabled={!petName}
+        onClick={() => getSci(petName)}
+        bgColor={green}
+        flexShrink={0}
+      >
+        Download
+      </Button>
     </HStack>
   );
 };

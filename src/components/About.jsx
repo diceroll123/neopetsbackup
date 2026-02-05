@@ -1,34 +1,35 @@
 import React from 'react';
-import {
-  Box,
-  Image,
-  HStack,
-  Container,
-  Stack,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Image, HStack, Stack, useColorModeValue } from '@chakra-ui/react';
 
 const About = () => {
   // a short blurb about what this webapp is for
   const background = useColorModeValue('white', 'gray.700');
+  const borderColor = useColorModeValue('gray.400', 'gray.600');
 
   return (
-    <HStack>
+    <HStack
+      spacing={4}
+      flexDirection={{ base: 'column', md: 'row' }}
+      align={{ base: 'center', md: 'flex-start' }}
+      maxW="100%"
+    >
       <Image
         borderRadius="full"
-        boxSize="350px"
+        boxSize={{ base: '200px', md: '350px' }}
         src="/alex.png"
         title="Eggy Weggs!"
+        flexShrink={0}
       />
-      <Container
+      <Box
         background={background}
-        borderColor={'gray.400'}
+        borderColor={borderColor}
         borderWidth="1px"
-        maxW="sm"
+        maxW={{ base: '100%', md: 'sm' }}
         fontSize="md"
         borderRadius="lg"
-        p={2}
+        p={4}
         boxShadow="lg"
+        ml={{ base: 0, md: 4 }}
       >
         <Stack spacing={2}>
           <Box>Howdy folks! 👋</Box>
@@ -45,7 +46,7 @@ const About = () => {
             We do not harvest any pet names you may enter!
           </Box>
         </Stack>
-      </Container>
+      </Box>
     </HStack>
   );
 };

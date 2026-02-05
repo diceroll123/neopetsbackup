@@ -369,7 +369,7 @@ const HistorySidebar = ({
   });
 
   const selectedPetEntries = selectedPet ? sciHistory[selectedPet] || [] : [];
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const sidebarContent = (
     <VStack spacing={4} align="stretch">
@@ -734,9 +734,9 @@ const HistorySidebar = ({
     </VStack>
   );
 
-  if (isMobile) {
-    return (
-      <>
+  return (
+    <>
+      {isMobile ? (
         <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="xs">
           <DrawerOverlay />
           <DrawerContent bg={bgColor}>
@@ -746,26 +746,22 @@ const HistorySidebar = ({
             </DrawerBody>
           </DrawerContent>
         </Drawer>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Box
-        width="300px"
-        height="100vh"
-        bg={bgColor}
-        borderRightWidth="1px"
-        borderColor={borderColor}
-        overflowY="auto"
-        position="fixed"
-        left={0}
-        top={0}
-        p={4}
-      >
-        {sidebarContent}
-      </Box>
+      ) : (
+        <Box
+          width="300px"
+          height="100vh"
+          bg={bgColor}
+          borderRightWidth="1px"
+          borderColor={borderColor}
+          overflowY="auto"
+          position="fixed"
+          left={0}
+          top={0}
+          p={4}
+        >
+          {sidebarContent}
+        </Box>
+      )}
 
       {/* Import Modal */}
       <Modal
