@@ -1,6 +1,8 @@
 import {
   Box,
+  VStack,
   ButtonGroup,
+  Code,
   Heading,
   Icon,
   IconButton,
@@ -70,6 +72,50 @@ const FooterButtons = props => {
   );
 };
 
+const VercelCredit = () => {
+  return (
+    <Box
+      fontSize="sm"
+      fontWeight="semibold"
+      display="inline-block"
+      bg="black"
+      color="white"
+      px="4"
+      py="2"
+      rounded="lg"
+    >
+      Deployed by{' '}
+      <span role="img" aria-label="Vercel logo">
+        ▲
+      </span>{' '}
+      Vercel
+    </Box>
+  );
+};
+
+const GitCommit = () => {
+  const commitHash =
+    process.env.REACT_APP_VERCEL_GIT_COMMIT_SHA || 'development';
+  const shortHash = commitHash.substring(0, 7);
+
+  return (
+    <Text fontSize="xs" color="gray.500">
+      Commit:{' '}
+      {commitHash !== 'development' ? (
+        <Link
+          href={`https://github.com/diceroll123/neopetsbackup/commit/${commitHash}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Code>{shortHash}</Code>
+        </Link>
+      ) : (
+        <Box as="span">{shortHash}</Box>
+      )}
+    </Text>
+  );
+};
+
 export const Footer = () => {
   return (
     <Box
@@ -94,6 +140,11 @@ export const Footer = () => {
           <FooterButtons />
         </Stack>
         <Copyright alignSelf={{ base: 'center', sm: 'start' }} />
+
+        <VStack>
+          <VercelCredit />
+          <GitCommit />
+        </VStack>
       </Stack>
     </Box>
   );
