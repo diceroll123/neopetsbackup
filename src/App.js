@@ -28,7 +28,7 @@ function App() {
   const [sciHistory, setSciHistory] = React.useState({});
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
   const toast = useToast();
-  const isMobile = useBreakpointValue({ base: true, lg: false });
+  const isMobile = useBreakpointValue({ base: true, xl: false });
 
   // Load SCI history from localStorage on mount
   React.useEffect(() => {
@@ -305,7 +305,7 @@ function App() {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
       />
-      <Flex direction="column" flex={1} ml={{ base: 0, lg: '300px' }}>
+      <Flex direction="column" flex={1} ml={{ base: 0, xl: '300px' }}>
         <Box textAlign="center" fontSize="xl" width="100%">
           <Flex
             direction="column"
