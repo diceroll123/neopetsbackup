@@ -268,12 +268,12 @@ function App() {
   };
 
   const saveSnapshot = async petName => {
-    if (petName === '' || !canDownload) {
+    if (petName === '') {
       return;
     }
-    addPetToState(petName, false);
-    updatePetInState(petName, { saving: true });
     try {
+      addPetToState(petName, false);
+      updatePetInState(petName, { saving: true });
       const sci = await getCurrentSci(petName);
       if (sci) {
         addSCIEntry(petName, sci);
