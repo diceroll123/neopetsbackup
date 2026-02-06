@@ -567,24 +567,31 @@ const HistorySidebar = ({
                         {formatDate(entry.t)}
                       </Text>
                       <HStack spacing={1.5} mt={1} flexWrap="wrap">
-                        <Button
-                          size="xs"
-                          colorScheme="blue"
-                          leftIcon={<FaRedo />}
-                          onClick={() =>
-                            handleRedownload(selectedPet, entry.sci)
-                          }
-                          borderRadius="md"
-                          fontWeight="medium"
-                          flexShrink={0}
-                          isDisabled={
-                            getCooldownRemaining(
-                              `redownload-${selectedPet}-${entry.sci}`
-                            ) > 0
-                          }
-                        >
-                          Redownload
-                        </Button>
+                        <Popover trigger="hover" placement="top">
+                          <PopoverTrigger>
+                            <IconButton
+                              size="xs"
+                              colorScheme="blue"
+                              icon={<FaDownload />}
+                              onClick={() =>
+                                handleRedownload(selectedPet, entry.sci)
+                              }
+                              borderRadius="md"
+                              fontWeight="medium"
+                              flexShrink={0}
+                              isDisabled={
+                                getCooldownRemaining(
+                                  `redownload-${selectedPet}-${entry.sci}`
+                                ) > 0
+                              }
+                            />
+                          </PopoverTrigger>
+                          <PopoverContent width="auto">
+                            <PopoverBody fontSize="sm" p={2}>
+                              Redownload this entry
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
                         <Popover trigger="hover" placement="top">
                           <PopoverTrigger>
                             <IconButton
