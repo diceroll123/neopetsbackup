@@ -33,13 +33,7 @@ const SavedPets = props => {
     >
       {alreadySavedPets.map(({ error, petName, downloaded, done, bytes }) => (
         <LinkBox key={petName} title={petName}>
-          <Box
-            as={HStack}
-            borderWidth="1px"
-            borderRadius="lg"
-            p={2}
-            minW={{ base: '100%', md: '230px' }}
-          >
+          <Box as={HStack} borderWidth="1px" borderRadius="lg" p={2}>
             <Image
               src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
               fallback={
