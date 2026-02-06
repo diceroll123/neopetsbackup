@@ -52,7 +52,6 @@ import {
   FaImages,
   FaInfoCircle,
   FaTshirt,
-  FaSave,
 } from 'react-icons/fa';
 
 const LazyImage = React.memo(
