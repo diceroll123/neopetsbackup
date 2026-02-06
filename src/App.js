@@ -8,14 +8,16 @@ import {
   Spacer,
   IconButton,
   useBreakpointValue,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { FaBars } from 'react-icons/fa';
+import { FaBars, FaQuestionCircle } from 'react-icons/fa';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import * as zip from '@zip.js/zip.js';
 import About from './components/About';
 import EnterNeopetName from './components/EnterNeopetName';
 import SavedPets from './components/SavedPets';
 import HistorySidebar from './components/HistorySidebar';
+import FAQ from './components/FAQ';
 import { EMOTIONS, SIZES } from './utils/constants';
 import Footer from './components/Footer';
 
@@ -29,6 +31,11 @@ function App() {
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
   const toast = useToast();
   const isMobile = useBreakpointValue({ base: true, xl: false });
+  const {
+    isOpen: isFAQOpen,
+    onOpen: onFAQOpen,
+    onClose: onFAQClose,
+  } = useDisclosure();
 
   // Load SCI history from localStorage on mount
   React.useEffect(() => {
@@ -324,7 +331,15 @@ function App() {
               ) : (
                 <Box />
               )}
-              <ColorModeSwitcher />
+              <Flex gap={2}>
+                <IconButton
+                  icon={<FaQuestionCircle />}
+                  aria-label="FAQ"
+                  onClick={onFAQOpen}
+                  variant="ghost"
+                />
+                <ColorModeSwitcher />
+              </Flex>
             </Flex>
             <VStack
               spacing={8}
@@ -350,6 +365,8 @@ function App() {
         <Spacer />
         <Footer />
       </Flex>
+
+      <FAQ isOpen={isFAQOpen} onClose={onFAQClose} />
     </Flex>
   );
 }
