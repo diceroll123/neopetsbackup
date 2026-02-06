@@ -597,7 +597,6 @@ const HistorySidebar = ({
                               onClick={() =>
                                 handleRedownload(selectedPet, entry.sci)
                               }
-                              borderRadius="md"
                               fontWeight="medium"
                               flexShrink={0}
                               isDisabled={
@@ -622,7 +621,6 @@ const HistorySidebar = ({
                               colorScheme="gray"
                               onClick={() => handleCopyImageUrl(entry.sci)}
                               aria-label="Copy image URL"
-                              borderRadius="md"
                               flexShrink={0}
                             />
                           </PopoverTrigger>
