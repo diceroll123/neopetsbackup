@@ -509,7 +509,29 @@ const HistorySidebar = ({
                   key={`${entry.t}-${entry.sci}`}
                   borderRadius="lg"
                   boxShadow="sm"
+                  position="relative"
                 >
+                  <Popover trigger="hover" placement="top">
+                    <PopoverTrigger>
+                      <IconButton
+                        icon={<FaTrash />}
+                        size="xs"
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={() => handleDeleteClick(selectedPet, index)}
+                        aria-label="Delete entry"
+                        position="absolute"
+                        top={2}
+                        right={2}
+                        zIndex={1}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent width="auto">
+                      <PopoverBody fontSize="sm" p={2}>
+                        Delete this entry
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
                   <HStack spacing={3} align="start">
                     <Popover trigger="hover" placement="right">
                       <PopoverTrigger>
@@ -607,27 +629,6 @@ const HistorySidebar = ({
                           <PopoverContent width="auto">
                             <PopoverBody fontSize="sm" p={2}>
                               Copy full-size image URL
-                            </PopoverBody>
-                          </PopoverContent>
-                        </Popover>
-                        <Popover trigger="hover" placement="top">
-                          <PopoverTrigger>
-                            <IconButton
-                              icon={<FaTrash />}
-                              size="xs"
-                              colorScheme="red"
-                              variant="outline"
-                              onClick={() =>
-                                handleDeleteClick(selectedPet, index)
-                              }
-                              aria-label="Delete entry"
-                              borderRadius="md"
-                              flexShrink={0}
-                            />
-                          </PopoverTrigger>
-                          <PopoverContent width="auto">
-                            <PopoverBody fontSize="sm" p={2}>
-                              Delete this entry
                             </PopoverBody>
                           </PopoverContent>
                         </Popover>
