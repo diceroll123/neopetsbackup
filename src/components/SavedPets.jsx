@@ -68,14 +68,14 @@ const SavedPets = props => {
                 {error ? (
                   <Badge colorScheme="red">ERROR</Badge>
                 ) : saving ? (
-                  <HStack spacing={2} flexWrap="wrap">
+                  <HStack spacing={2}>
                     <Spinner size="sm" />
                     <Text fontSize="sm">Saving snapshot...</Text>
                   </HStack>
                 ) : (
                   <>
                     {done ? (
-                      <HStack spacing={2} flexWrap="wrap">
+                      <HStack spacing={2}>
                         <Badge colorScheme="green">SUCCESS</Badge>
                         {bytes > 0 ? (
                           <Badge colorScheme="blue">
