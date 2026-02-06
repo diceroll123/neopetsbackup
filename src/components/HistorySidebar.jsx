@@ -730,34 +730,16 @@ const HistorySidebar = ({
                 >
                   <Box p={3}>
                     <HStack spacing={3}>
-                      <Popover trigger="hover" placement="right">
-                        <PopoverTrigger>
-                          <Box cursor="pointer">
-                            <Image
-                              src={`http://pets.neopets.com/cp/${latestEntry.sci}/1/6.png`}
-                              fallback={
-                                <Skeleton boxSize="60px" borderRadius="xl" />
-                              }
-                              borderRadius="xl"
-                              boxSize="60px"
-                            />
-                          </Box>
-                        </PopoverTrigger>
-                        <Portal>
-                          <PopoverContent width="auto">
-                            <PopoverBody p={2}>
-                              <Image
-                                src={`https://pets.neopets.com/cp/${latestEntry.sci}/1/4.png`}
-                                alt={`${petName} as it was on ${formatShortDate(
-                                  latestEntry.t
-                                )}`}
-                                maxW="200px"
-                                borderRadius="xl"
-                              />
-                            </PopoverBody>
-                          </PopoverContent>
-                        </Portal>
-                      </Popover>
+                      <Box>
+                        <Image
+                          src={`http://pets.neopets.com/cp/${latestEntry.sci}/1/6.png`}
+                          fallback={
+                            <Skeleton boxSize="60px" borderRadius="xl" />
+                          }
+                          borderRadius="xl"
+                          boxSize="60px"
+                        />
+                      </Box>
                       <VStack align="start" spacing={0} flex={1} minW={0}>
                         <Text
                           fontWeight="bold"
