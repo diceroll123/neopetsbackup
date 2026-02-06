@@ -8,7 +8,7 @@ import {
   Skeleton,
   Badge,
   Icon,
-  SimpleGrid,
+  Flex,
   Text,
   LinkOverlay,
   LinkBox,
@@ -26,21 +26,25 @@ const SavedPets = props => {
   const errorEndColor = useColorModeValue('red.400', 'red.600');
 
   return (
-    <SimpleGrid
-      columns={{ base: 1, sm: 2, md: 3 }}
-      spacing={3}
-      width="100%"
-      maxW={{ base: '100%', md: 'xl' }}
-    >
+    <Flex wrap="wrap" gap={3} width="100%" maxW={{ base: '100%', md: 'xl' }}>
       {alreadySavedPets.map(
         ({ error, petName, downloaded, done, bytes, saving }) => (
-          <LinkBox key={petName} title={petName}>
+          <LinkBox
+            key={petName}
+            title={petName}
+            flex={{
+              base: '1 1 100%',
+              sm: '1 1 calc(50% - 12px)',
+              md: '1 1 calc(33.333% - 16px)',
+            }}
+            minW={{ base: '100%', sm: '250px' }}
+          >
             <Box
               as={HStack}
               borderWidth="1px"
               borderRadius="lg"
-              p={2}
-              align="flex-start"
+              p={3}
+              spacing={3}
             >
               <Image
                 src={`https://pets.neopets.com/cpn/${petName}/1/6.png`}
@@ -56,13 +60,26 @@ const SavedPets = props => {
                 boxSize="70px"
                 flexShrink={0}
               />
-              <VStack alignItems={'start'} flex={1}>
-                <Box textColor={error ? 'red.300' : null} width="100%">
+              <VStack
+                alignItems={'start'}
+                flex={1}
+                spacing={1}
+                minWidth={0}
+                align="stretch"
+              >
+                <Box
+                  textColor={error ? 'red.300' : null}
+                  width="100%"
+                  minWidth={0}
+                  textAlign="left"
+                >
                   <LinkOverlay
                     href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`}
                     isExternal
                   >
-                    <Text isTruncated>{petName}</Text>
+                    <Text isTruncated textAlign="left">
+                      {petName}
+                    </Text>
                   </LinkOverlay>
                 </Box>
                 {error ? (
@@ -107,7 +124,7 @@ const SavedPets = props => {
           </LinkBox>
         )
       )}
-    </SimpleGrid>
+    </Flex>
   );
 };
 
