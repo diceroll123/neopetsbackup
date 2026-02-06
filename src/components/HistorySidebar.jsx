@@ -402,8 +402,8 @@ const HistorySidebar = ({
     }
   };
 
-  const handleOpenDressToImpress = sci => {
-    const url = `https://impress.openneo.net/pets/load?name=@${sci}`;
+  const handleOpenDressToImpress = name => {
+    const url = `https://impress.openneo.net/pets/load?name=${name}`;
     window.open(url, '_blank');
   };
 
@@ -507,6 +507,14 @@ const HistorySidebar = ({
                   Download
                 </Button>
               </HStack>
+
+              <Button
+                colorScheme="purple"
+                onClick={() => handleOpenDressToImpress(selectedPet)}
+                leftIcon={<FaTshirt />}
+              >
+                Open in Dress to Impress
+              </Button>
             </VStack>
           </Box>
           <Divider />
@@ -630,7 +638,7 @@ const HistorySidebar = ({
                               colorScheme="purple"
                               leftIcon={<FaTshirt />}
                               onClick={() =>
-                                handleOpenDressToImpress(entry.sci)
+                                handleOpenDressToImpress('@' + entry.sci)
                               }
                               fontWeight="medium"
                               flexShrink={0}
