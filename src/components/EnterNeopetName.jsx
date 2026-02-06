@@ -10,12 +10,20 @@ import {
 
 const EnterNeopetName = props => {
   // The skeleton/image of the pet + the input field for pet name + the download button
-  const { petName, setCanDownload, handlePetNameChange, getSci } = props;
+  const {
+    petName,
+    canDownload,
+    setCanDownload,
+    handlePetNameChange,
+    getSci,
+    saveSnapshot,
+  } = props;
 
   const green = useColorModeValue('green.300', 'green.500');
+  const blue = useColorModeValue('blue.300', 'blue.500');
 
   return (
-    <HStack spacing={4} justify="center">
+    <HStack spacing={3} justify="center">
       <Image
         src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
         title={petName}
@@ -34,10 +42,18 @@ const EnterNeopetName = props => {
         value={petName}
         onChange={handlePetNameChange}
         placeholder="Enter a Neopet's name"
-        onKeyPress={e => e.key === 'Enter' && getSci(petName)}
+        onKeyPress={e => e.key === 'Enter' && saveSnapshot(petName)}
       />
       <Button
-        disabled={!petName}
+        disabled={!petName || !canDownload}
+        onClick={() => saveSnapshot(petName)}
+        bgColor={blue}
+        flexShrink={0}
+      >
+        Save
+      </Button>
+      <Button
+        disabled={!petName || !canDownload}
         onClick={() => getSci(petName)}
         bgColor={green}
         flexShrink={0}

@@ -81,6 +81,40 @@ const FAQ = ({ isOpen, onClose }) => {
             <AccordionItem>
               <AccordionButton>
                 <Box flex="1" textAlign="left" fontWeight="semibold">
+                  What's the difference between Save and Download?
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel pb={4}>
+                <VStack align="stretch" spacing={3}>
+                  <Text>
+                    <strong>Save:</strong> Adds a snapshot of your pet's current
+                    appearance to your history sidebar without downloading any
+                    files. This is the recommended option for most users, as it
+                    lets you track changes over time and view your pet's
+                    appearance history without cluttering your downloads folder.
+                    You can always download a zip file later from the history
+                    sidebar.
+                  </Text>
+                  <Text>
+                    <strong>Download:</strong> Immediately downloads a zip file
+                    containing all images of your pet in various emotions and
+                    sizes, and also saves the snapshot to your history. Use this
+                    when you need the image files right away.
+                  </Text>
+
+                  <Text fontSize="sm" color="gray.500">
+                    We figure this website will be used more for saving than
+                    downloading, however downloading was the original idea of
+                    this site.
+                  </Text>
+                </VStack>
+              </AccordionPanel>
+            </AccordionItem>
+
+            <AccordionItem>
+              <AccordionButton>
+                <Box flex="1" textAlign="left" fontWeight="semibold">
                   Is my data private?
                 </Box>
                 <AccordionIcon />

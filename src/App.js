@@ -267,6 +267,43 @@ function App() {
     }
   };
 
+  const saveSnapshot = async petName => {
+    if (petName === '' || !canDownload) {
+      return;
+    }
+    addPetToState(petName, false);
+    updatePetInState(petName, { saving: true });
+    try {
+      const sci = await getCurrentSci(petName);
+      if (sci) {
+        addSCIEntry(petName, sci);
+        updatePetInState(petName, { saving: false, done: true });
+        setPetName('');
+        toast({
+          status: 'success',
+          title: `Snapshot saved for ${petName}`,
+          duration: 2000,
+          isClosable: true,
+        });
+      } else {
+        updatePetInState(petName, { saving: false, error: true });
+        toast({
+          status: 'error',
+          title: `Error saving snapshot - make sure you spelled ${petName}'s name correctly.`,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      updatePetInState(petName, { saving: false, error: true });
+      toast({
+        id: 'saveSnapshot',
+        status: 'error',
+        title: `Error saving snapshot - make sure you spelled ${petName}'s name correctly.`,
+        isClosable: true,
+      });
+    }
+  };
+
   const getSci = async petName => {
     if (petName === '' || !canDownload) {
       return;
@@ -274,10 +311,12 @@ function App() {
     try {
       addPetToState(petName, false);
       setPetName('');
-      const response = await fetch(`/api/pet-proxy/?name=${petName}`, {
-        method: 'HEAD',
-      });
-      await makeZip(petName, response.headers.get('sci'));
+      const sci = await getCurrentSci(petName);
+      if (sci) {
+        await makeZip(petName, sci);
+      } else {
+        throw new Error('Failed to get SCI');
+      }
     } catch (error) {
       toast({
         id: 'getSci',
@@ -309,6 +348,7 @@ function App() {
             await redownloadPet(petName, sci);
           }
         }}
+        onSaveCurrent={saveSnapshot}
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
       />
@@ -353,9 +393,11 @@ function App() {
 
               <EnterNeopetName
                 petName={petName}
+                canDownload={canDownload}
                 setCanDownload={setCanDownload}
                 handlePetNameChange={handlePetNameChange}
                 getSci={getSci}
+                saveSnapshot={saveSnapshot}
               />
 
               <SavedPets alreadySavedPets={alreadySavedPets} />

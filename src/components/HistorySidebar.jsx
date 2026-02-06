@@ -48,10 +48,10 @@ import {
   FaUpload,
   FaChevronLeft,
   FaChevronRight,
-  FaRedo,
   FaCopy,
   FaImages,
   FaInfoCircle,
+  FaTshirt,
 } from 'react-icons/fa';
 
 const LazyImage = React.memo(
@@ -194,6 +194,7 @@ const HistorySidebar = ({
   onImport,
   onRedownload,
   onDownloadCurrent,
+  onSaveCurrent,
   isOpen,
   onClose,
 }) => {
@@ -374,6 +375,13 @@ const HistorySidebar = ({
     onDownloadCurrent(petName);
   };
 
+  const handleSaveCurrent = petName => {
+    const key = `save-current-${petName}`;
+    if (getCooldownRemaining(key) > 0) return;
+    setCooldown(key);
+    onSaveCurrent(petName);
+  };
+
   const handleCopyImageUrl = async sci => {
     const imageUrl = `https://pets.neopets.com/cp/${sci}/1/7.png`;
     try {
@@ -392,6 +400,11 @@ const HistorySidebar = ({
         isClosable: true,
       });
     }
+  };
+
+  const handleOpenDressToImpress = name => {
+    const url = `https://impress.openneo.net/pets/load?name=${name}`;
+    window.open(url, '_blank');
   };
 
   // Sort pet names by most recent entry timestamp
@@ -468,17 +481,39 @@ const HistorySidebar = ({
                   fallback={<Skeleton height="200px" width="200px" />}
                 />
               </Box>
+              <HStack spacing={3} width="100%">
+                <Button
+                  colorScheme="blue"
+                  size="md"
+                  onClick={() => handleSaveCurrent(selectedPet)}
+                  fontWeight="bold"
+                  flex={1}
+                  isDisabled={
+                    getCooldownRemaining(`save-current-${selectedPet}`) > 0
+                  }
+                >
+                  Save
+                </Button>
+                <Button
+                  colorScheme="green"
+                  size="md"
+                  onClick={() => handleDownloadCurrent(selectedPet)}
+                  fontWeight="bold"
+                  flex={1}
+                  isDisabled={
+                    getCooldownRemaining(`download-current-${selectedPet}`) > 0
+                  }
+                >
+                  Download
+                </Button>
+              </HStack>
+
               <Button
-                colorScheme="green"
-                size="md"
-                leftIcon={<FaDownload />}
-                onClick={() => handleDownloadCurrent(selectedPet)}
-                fontWeight="bold"
-                isDisabled={
-                  getCooldownRemaining(`download-current-${selectedPet}`) > 0
-                }
+                colorScheme="purple"
+                onClick={() => handleOpenDressToImpress(selectedPet)}
+                leftIcon={<FaTshirt />}
               >
-                Download
+                Open in Dress to Impress
               </Button>
             </VStack>
           </Box>
@@ -510,7 +545,29 @@ const HistorySidebar = ({
                   key={`${entry.t}-${entry.sci}`}
                   borderRadius="lg"
                   boxShadow="sm"
+                  position="relative"
                 >
+                  <Popover trigger="hover" placement="top">
+                    <PopoverTrigger>
+                      <IconButton
+                        icon={<FaTrash />}
+                        size="xs"
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={() => handleDeleteClick(selectedPet, index)}
+                        aria-label="Delete entry"
+                        position="absolute"
+                        top={2}
+                        right={2}
+                        zIndex={1}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent width="auto">
+                      <PopoverBody fontSize="sm" p={2}>
+                        Delete this entry
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
                   <HStack spacing={3} align="start">
                     <Popover trigger="hover" placement="right">
                       <PopoverTrigger>
@@ -556,6 +613,8 @@ const HistorySidebar = ({
                       flex={1}
                       minW={0}
                       overflow="hidden"
+                      justify="space-between"
+                      minH="60px"
                     >
                       <Text
                         fontSize="xs"
@@ -566,25 +625,58 @@ const HistorySidebar = ({
                       >
                         {formatDate(entry.t)}
                       </Text>
-                      <HStack spacing={1.5} mt={1} flexWrap="wrap">
-                        <Button
-                          size="xs"
-                          colorScheme="blue"
-                          leftIcon={<FaRedo />}
-                          onClick={() =>
-                            handleRedownload(selectedPet, entry.sci)
-                          }
-                          borderRadius="md"
-                          fontWeight="medium"
-                          flexShrink={0}
-                          isDisabled={
-                            getCooldownRemaining(
-                              `redownload-${selectedPet}-${entry.sci}`
-                            ) > 0
-                          }
-                        >
-                          Redownload
-                        </Button>
+                      <HStack
+                        spacing={1.5}
+                        flexWrap="wrap"
+                        alignSelf="flex-start"
+                        width="100%"
+                      >
+                        <Popover trigger="hover" placement="top">
+                          <PopoverTrigger>
+                            <Button
+                              size="xs"
+                              colorScheme="purple"
+                              leftIcon={<FaTshirt />}
+                              onClick={() =>
+                                handleOpenDressToImpress('@' + entry.sci)
+                              }
+                              fontWeight="medium"
+                              flexShrink={0}
+                              aria-label="Open in Dress to Impress"
+                            >
+                              Open in DTI
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent width="auto">
+                            <PopoverBody fontSize="sm" p={2}>
+                              Open in Dress to Impress
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
+                        <Popover trigger="hover" placement="top">
+                          <PopoverTrigger>
+                            <IconButton
+                              size="xs"
+                              colorScheme="blue"
+                              icon={<FaDownload />}
+                              onClick={() =>
+                                handleRedownload(selectedPet, entry.sci)
+                              }
+                              fontWeight="medium"
+                              flexShrink={0}
+                              isDisabled={
+                                getCooldownRemaining(
+                                  `redownload-${selectedPet}-${entry.sci}`
+                                ) > 0
+                              }
+                            />
+                          </PopoverTrigger>
+                          <PopoverContent width="auto">
+                            <PopoverBody fontSize="sm" p={2}>
+                              Download this entry as a zip file
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
                         <Popover trigger="hover" placement="top">
                           <PopoverTrigger>
                             <IconButton
@@ -594,34 +686,12 @@ const HistorySidebar = ({
                               colorScheme="gray"
                               onClick={() => handleCopyImageUrl(entry.sci)}
                               aria-label="Copy image URL"
-                              borderRadius="md"
                               flexShrink={0}
                             />
                           </PopoverTrigger>
                           <PopoverContent width="auto">
                             <PopoverBody fontSize="sm" p={2}>
                               Copy full-size image URL
-                            </PopoverBody>
-                          </PopoverContent>
-                        </Popover>
-                        <Popover trigger="hover" placement="top">
-                          <PopoverTrigger>
-                            <IconButton
-                              icon={<FaTrash />}
-                              size="xs"
-                              colorScheme="red"
-                              variant="outline"
-                              onClick={() =>
-                                handleDeleteClick(selectedPet, index)
-                              }
-                              aria-label="Delete entry"
-                              borderRadius="md"
-                              flexShrink={0}
-                            />
-                          </PopoverTrigger>
-                          <PopoverContent width="auto">
-                            <PopoverBody fontSize="sm" p={2}>
-                              Delete this entry
                             </PopoverBody>
                           </PopoverContent>
                         </Popover>
@@ -697,34 +767,16 @@ const HistorySidebar = ({
                 >
                   <Box p={3}>
                     <HStack spacing={3}>
-                      <Popover trigger="hover" placement="right">
-                        <PopoverTrigger>
-                          <Box cursor="pointer">
-                            <Image
-                              src={`http://pets.neopets.com/cp/${latestEntry.sci}/1/6.png`}
-                              fallback={
-                                <Skeleton boxSize="60px" borderRadius="xl" />
-                              }
-                              borderRadius="xl"
-                              boxSize="60px"
-                            />
-                          </Box>
-                        </PopoverTrigger>
-                        <Portal>
-                          <PopoverContent width="auto">
-                            <PopoverBody p={2}>
-                              <Image
-                                src={`https://pets.neopets.com/cp/${latestEntry.sci}/1/4.png`}
-                                alt={`${petName} as it was on ${formatShortDate(
-                                  latestEntry.t
-                                )}`}
-                                maxW="200px"
-                                borderRadius="xl"
-                              />
-                            </PopoverBody>
-                          </PopoverContent>
-                        </Portal>
-                      </Popover>
+                      <Box>
+                        <Image
+                          src={`http://pets.neopets.com/cp/${latestEntry.sci}/1/6.png`}
+                          fallback={
+                            <Skeleton boxSize="60px" borderRadius="xl" />
+                          }
+                          borderRadius="xl"
+                          boxSize="60px"
+                        />
+                      </Box>
                       <VStack align="start" spacing={0} flex={1} minW={0}>
                         <Text
                           fontWeight="bold"
