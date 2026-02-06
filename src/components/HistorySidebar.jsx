@@ -583,6 +583,8 @@ const HistorySidebar = ({
                       flex={1}
                       minW={0}
                       overflow="hidden"
+                      justify="space-between"
+                      minH="60px"
                     >
                       <Text
                         fontSize="xs"
@@ -593,7 +595,12 @@ const HistorySidebar = ({
                       >
                         {formatDate(entry.t)}
                       </Text>
-                      <HStack spacing={1.5} mt={1} flexWrap="wrap">
+                      <HStack
+                        spacing={1.5}
+                        flexWrap="wrap"
+                        alignSelf="flex-start"
+                        width="100%"
+                      >
                         <Popover trigger="hover" placement="top">
                           <PopoverTrigger>
                             <Button
