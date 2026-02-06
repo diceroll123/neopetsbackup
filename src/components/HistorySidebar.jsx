@@ -51,6 +51,7 @@ import {
   FaCopy,
   FaImages,
   FaInfoCircle,
+  FaTshirt,
 } from 'react-icons/fa';
 
 const LazyImage = React.memo(
@@ -393,6 +394,11 @@ const HistorySidebar = ({
     }
   };
 
+  const handleOpenDressToImpress = sci => {
+    const url = `https://impress.openneo.net/pets/load?name=@${sci}`;
+    window.open(url, '_blank');
+  };
+
   // Sort pet names by most recent entry timestamp
   const sortedPets = Object.entries(sciHistory).sort((a, b) => {
     const aLatest = a[1].length > 0 ? a[1][0].t : 0;
@@ -588,6 +594,28 @@ const HistorySidebar = ({
                         {formatDate(entry.t)}
                       </Text>
                       <HStack spacing={1.5} mt={1} flexWrap="wrap">
+                        <Popover trigger="hover" placement="top">
+                          <PopoverTrigger>
+                            <Button
+                              size="xs"
+                              colorScheme="purple"
+                              leftIcon={<FaTshirt />}
+                              onClick={() =>
+                                handleOpenDressToImpress(entry.sci)
+                              }
+                              fontWeight="medium"
+                              flexShrink={0}
+                              aria-label="Open in Dress to Impress"
+                            >
+                              Open in DTI
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent width="auto">
+                            <PopoverBody fontSize="sm" p={2}>
+                              Open in Dress to Impress
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
                         <Popover trigger="hover" placement="top">
                           <PopoverTrigger>
                             <IconButton
