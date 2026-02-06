@@ -48,7 +48,6 @@ import {
   FaUpload,
   FaChevronLeft,
   FaChevronRight,
-  FaRedo,
   FaCopy,
   FaImages,
   FaInfoCircle,
