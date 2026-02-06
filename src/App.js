@@ -202,7 +202,9 @@ function App() {
             ).then(async response => {
               const path = `${size_name}/${emo_name}.png`;
               const blob = await response.blob();
-              await zipWriter.add(path, new zip.BlobReader(blob));
+              await zipWriter.add(path, new zip.BlobReader(blob), {
+                level: 9, // Maximum compression level
+              });
               incrementDownloadedForPet(name);
             })
           );
