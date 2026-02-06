@@ -278,6 +278,7 @@ function App() {
       if (sci) {
         addSCIEntry(petName, sci);
         updatePetInState(petName, { saving: false, done: true });
+        setPetName('');
         toast({
           status: 'success',
           title: `Snapshot saved for ${petName}`,
