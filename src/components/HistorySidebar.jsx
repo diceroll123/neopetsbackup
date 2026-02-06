@@ -52,6 +52,7 @@ import {
   FaImages,
   FaInfoCircle,
   FaTshirt,
+  FaSave,
 } from 'react-icons/fa';
 
 const LazyImage = React.memo(
@@ -194,6 +195,7 @@ const HistorySidebar = ({
   onImport,
   onRedownload,
   onDownloadCurrent,
+  onSaveCurrent,
   isOpen,
   onClose,
 }) => {
@@ -374,6 +376,13 @@ const HistorySidebar = ({
     onDownloadCurrent(petName);
   };
 
+  const handleSaveCurrent = petName => {
+    const key = `save-current-${petName}`;
+    if (getCooldownRemaining(key) > 0) return;
+    setCooldown(key);
+    onSaveCurrent(petName);
+  };
+
   const handleCopyImageUrl = async sci => {
     const imageUrl = `https://pets.neopets.com/cp/${sci}/1/7.png`;
     try {
@@ -473,18 +482,32 @@ const HistorySidebar = ({
                   fallback={<Skeleton height="200px" width="200px" />}
                 />
               </Box>
-              <Button
-                colorScheme="green"
-                size="md"
-                leftIcon={<FaDownload />}
-                onClick={() => handleDownloadCurrent(selectedPet)}
-                fontWeight="bold"
-                isDisabled={
-                  getCooldownRemaining(`download-current-${selectedPet}`) > 0
-                }
-              >
-                Download
-              </Button>
+              <HStack spacing={3} width="100%">
+                <Button
+                  colorScheme="blue"
+                  size="md"
+                  onClick={() => handleSaveCurrent(selectedPet)}
+                  fontWeight="bold"
+                  flex={1}
+                  isDisabled={
+                    getCooldownRemaining(`save-current-${selectedPet}`) > 0
+                  }
+                >
+                  Save
+                </Button>
+                <Button
+                  colorScheme="green"
+                  size="md"
+                  onClick={() => handleDownloadCurrent(selectedPet)}
+                  fontWeight="bold"
+                  flex={1}
+                  isDisabled={
+                    getCooldownRemaining(`download-current-${selectedPet}`) > 0
+                  }
+                >
+                  Download
+                </Button>
+              </HStack>
             </VStack>
           </Box>
           <Divider />

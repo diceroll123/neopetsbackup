@@ -267,6 +267,37 @@ function App() {
     }
   };
 
+  const saveSnapshot = async petName => {
+    if (petName === '' || !canDownload) {
+      return;
+    }
+    try {
+      const sci = await getCurrentSci(petName);
+      if (sci) {
+        addSCIEntry(petName, sci);
+        toast({
+          status: 'success',
+          title: `Snapshot saved for ${petName}`,
+          duration: 2000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          status: 'error',
+          title: `Error saving snapshot - make sure you spelled ${petName}'s name correctly.`,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      toast({
+        id: 'saveSnapshot',
+        status: 'error',
+        title: `Error saving snapshot - make sure you spelled ${petName}'s name correctly.`,
+        isClosable: true,
+      });
+    }
+  };
+
   const getSci = async petName => {
     if (petName === '' || !canDownload) {
       return;
@@ -309,6 +340,7 @@ function App() {
             await redownloadPet(petName, sci);
           }
         }}
+        onSaveCurrent={saveSnapshot}
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
       />
@@ -356,6 +388,7 @@ function App() {
                 setCanDownload={setCanDownload}
                 handlePetNameChange={handlePetNameChange}
                 getSci={getSci}
+                saveSnapshot={saveSnapshot}
               />
 
               <SavedPets alreadySavedPets={alreadySavedPets} />
