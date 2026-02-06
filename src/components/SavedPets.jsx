@@ -37,7 +37,7 @@ const SavedPets = props => {
           <LinkBox key={petName} title={petName}>
             <Box as={HStack} borderWidth="1px" borderRadius="lg" p={2}>
               <Image
-                src={`http://pets.neopets.com/cpn/${petName}/1/6.png`}
+                src={`https://pets.neopets.com/cpn/${petName}/1/6.png`}
                 fallback={
                   <Skeleton
                     boxSize="70px"
