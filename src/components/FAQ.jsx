@@ -102,6 +102,12 @@ const FAQ = ({ isOpen, onClose }) => {
                     sizes, and also saves the snapshot to your history. Use this
                     when you need the image files right away.
                   </Text>
+
+                  <Text fontSize="sm" color="gray.500">
+                    We figure this website will be used more for saving than
+                    downloading, however downloading was the original idea of
+                    this site.
+                  </Text>
                 </VStack>
               </AccordionPanel>
             </AccordionItem>
