@@ -311,10 +311,12 @@ function App() {
     try {
       addPetToState(petName, false);
       setPetName('');
-      const response = await fetch(`/api/pet-proxy/?name=${petName}`, {
-        method: 'HEAD',
-      });
-      await makeZip(petName, response.headers.get('sci'));
+      const sci = await getCurrentSci(petName);
+      if (sci) {
+        await makeZip(petName, sci);
+      } else {
+        throw new Error('Failed to get SCI');
+      }
     } catch (error) {
       toast({
         id: 'getSci',
