@@ -35,7 +35,13 @@ const SavedPets = props => {
       {alreadySavedPets.map(
         ({ error, petName, downloaded, done, bytes, saving }) => (
           <LinkBox key={petName} title={petName}>
-            <Box as={HStack} borderWidth="1px" borderRadius="lg" p={2}>
+            <Box
+              as={HStack}
+              borderWidth="1px"
+              borderRadius="lg"
+              p={2}
+              align="flex-start"
+            >
               <Image
                 src={`https://pets.neopets.com/cpn/${petName}/1/6.png`}
                 fallback={
@@ -48,9 +54,10 @@ const SavedPets = props => {
                 }
                 borderRadius="xl"
                 boxSize="70px"
+                flexShrink={0}
               />
-              <VStack alignItems={'start'}>
-                <Box textColor={error ? 'red.300' : null} maxW="145px">
+              <VStack alignItems={'start'} flex={1}>
+                <Box textColor={error ? 'red.300' : null} width="100%">
                   <LinkOverlay
                     href={`http://www.neopets.com/petlookup.phtml?pet=${petName}`}
                     isExternal
@@ -61,14 +68,14 @@ const SavedPets = props => {
                 {error ? (
                   <Badge colorScheme="red">ERROR</Badge>
                 ) : saving ? (
-                  <HStack spacing={2}>
+                  <HStack spacing={2} flexWrap="wrap">
                     <Spinner size="sm" />
                     <Text fontSize="sm">Saving snapshot...</Text>
                   </HStack>
                 ) : (
                   <>
                     {done ? (
-                      <HStack spacing={2}>
+                      <HStack spacing={2} flexWrap="wrap">
                         <Badge colorScheme="green">SUCCESS</Badge>
                         {bytes > 0 ? (
                           <Badge colorScheme="blue">
