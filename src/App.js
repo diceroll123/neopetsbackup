@@ -271,10 +271,13 @@ function App() {
     if (petName === '' || !canDownload) {
       return;
     }
+    addPetToState(petName, false);
+    updatePetInState(petName, { saving: true });
     try {
       const sci = await getCurrentSci(petName);
       if (sci) {
         addSCIEntry(petName, sci);
+        updatePetInState(petName, { saving: false, done: true });
         toast({
           status: 'success',
           title: `Snapshot saved for ${petName}`,
@@ -282,6 +285,7 @@ function App() {
           isClosable: true,
         });
       } else {
+        updatePetInState(petName, { saving: false, error: true });
         toast({
           status: 'error',
           title: `Error saving snapshot - make sure you spelled ${petName}'s name correctly.`,
@@ -289,6 +293,7 @@ function App() {
         });
       }
     } catch (error) {
+      updatePetInState(petName, { saving: false, error: true });
       toast({
         id: 'saveSnapshot',
         status: 'error',
@@ -385,6 +390,7 @@ function App() {
 
               <EnterNeopetName
                 petName={petName}
+                canDownload={canDownload}
                 setCanDownload={setCanDownload}
                 handlePetNameChange={handlePetNameChange}
                 getSci={getSci}
