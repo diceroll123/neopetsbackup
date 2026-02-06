@@ -588,7 +588,7 @@ const HistorySidebar = ({
                           </PopoverTrigger>
                           <PopoverContent width="auto">
                             <PopoverBody fontSize="sm" p={2}>
-                              Redownload this entry
+                              Download this entry
                             </PopoverBody>
                           </PopoverContent>
                         </Popover>
